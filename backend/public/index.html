@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AFXX — Panel de Admin</title>
+<style>
+  :root { --red: #e11d2e; --bg: #f7f7f8; --card: #fff; --border: #e5e5e5; --text: #1a1a1a; --muted: #777; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 24px; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  .key-box { display: flex; gap: 8px; margin-bottom: 24px; max-width: 480px; }
+  .key-box input { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
+  .key-box button, .actions button { border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer; }
+  .key-box button { background: var(--red); color: #fff; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+  th { background: #fafafa; font-size: 12px; color: var(--muted); text-transform: uppercase; }
+  .status { font-weight: 700; padding: 3px 8px; border-radius: 999px; font-size: 11px; }
+  .status.pending { background: #fff3cd; color: #856404; }
+  .status.authorized { background: #d4edda; color: #155724; }
+  .status.returned { background: #e2e3e5; color: #383d41; }
+  .status.rejected { background: #e2e3e5; color: #383d41; }
+  .status.fraud_flagged { background: #f8d7da; color: #721c24; }
+  .actions { display: flex; gap: 6px; }
+  .actions .authorize { background: #16a34a; color: #fff; }
+  .actions .return, .actions .reject { background: #6b7280; color: #fff; }
+  .actions .fraud { background: var(--red); color: #fff; }
+  .actions button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .empty { padding: 30px; text-align: center; color: var(--muted); }
+  #msg { font-size: 13px; margin-bottom: 12px; }
+  section { margin-bottom: 36px; }
+  section h2 { font-size: 15px; margin: 0 0 4px; }
+  section .sub { margin-bottom: 14px; }
+  .settings-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px; max-width: 560px; display: grid; gap: 10px;
+  }
+  .settings-card label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 3px; }
+  .settings-card input {
+    width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px;
+  }
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .settings-card button {
+    justify-self: start; background: var(--red); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-weight: 700; cursor: pointer;
+  }
+  #settings-msg { font-size: 12px; color: #16a34a; min-height: 16px; }
+</style>
+</head>
+<body>
+  <h1>AFXX — Panel de Admin</h1>
+  <p class="sub">Configura la Clabe de depósito y revisa depósitos y retiros pendientes.</p>
+
+  <div class="key-box">
+    <input type="password" id="admin-key" placeholder="Llave de admin (ADMIN_KEY)" />
+    <button onclick="enterPanel()">Entrar</button>
+  </div>
+
+  <p id="msg"></p>
+
+  <section id="settings-section" hidden>
+    <h2>Datos de depósito (Clabe)</h2>
+    <p class="sub">Esto es exactamente lo que ve el usuario en la pantalla de depósito. Cámbialo cuando cambie tu cuenta receptora.</p>
+    <div class="settings-card">
+      <div class="settings-grid">
+        <div>
+          <label>Clabe</label>
+          <input id="set-clabe" placeholder="18 dígitos" />
+        </div>
+        <div>
+          <label>Banco destino</label>
+          <input id="set-bank" placeholder="Ej. Fintoc" />
+        </div>
+        <div>
+          <label>Beneficiario</label>
+          <input id="set-beneficiary" placeholder="Ej. SPEI" />
+        </div>
+        <div>
+          <label>Concepto (opcional)</label>
+          <input id="set-concept" placeholder="Ej. Pago" />
+        </div>
+      </div>
+      <div>
+        <label>Enlace de invitación (el mismo para todos los usuarios)</label>
+        <input id="set-invite-link" placeholder="https://tu-dominio.com/?ch=..." />
+      </div>
+      <div style="max-width:160px">
+        <label>Referidos válidos para llenar el Cofre</label>
+        <input id="set-referrals-required" placeholder="10" type="number" min="1" />
+      </div>
+      <button onclick="saveSettings()">Guardar cambios</button>
+      <div id="settings-msg"></div>
+    </div>
+  </section>
+
+  <section id="referrals-section" hidden>
+    <h2>Referidos por revisar</h2>
+    <p class="sub">El usuario manda el ID/contacto de su invitado desde la app. Apruébalo solo si ya cumplió los requisitos (ver pestaña Reglas en la app).</p>
+    <div id="referrals-wrap"></div>
+  </section>
+
+  <section id="deposits-section" hidden>
+    <h2>Solicitudes de depósito</h2>
+    <p class="sub">El saldo y el bono se acreditan solo cuando autorizas aquí, después de comprobar que el pago llegó.</p>
+    <div id="deposits-wrap"></div>
+  </section>
+
+  <section id="withdrawals-section" hidden>
+    <h2>Solicitudes de retiro</h2>
+    <p class="sub">Pendientes de revisión.</p>
+    <div id="table-wrap"></div>
+  </section>
+
+  <script>
+    const API = window.location.origin + '/api/admin';
+
+    function getKey() {
+      return document.getElementById('admin-key').value.trim();
+    }
+
+    function setMsg(text) { document.getElementById('msg').textContent = text; }
+
+    async function enterPanel() {
+      const key = getKey();
+      if (!key) { setMsg('Escribe tu llave de admin.'); return; }
+      localStorage.setItem('afxx_admin_key', key);
+      setMsg('Cargando...');
+      try {
+        await Promise.all([loadSettings(), loadReferrals(), loadDeposits(), loadWithdrawals()]);
+        setMsg('');
+        document.getElementById('settings-section').hidden = false;
+        document.getElementById('referrals-section').hidden = false;
+        document.getElementById('deposits-section').hidden = false;
+        document.getElementById('withdrawals-section').hidden = false;
+      } catch (e) {
+        setMsg('No se pudo conectar al backend. ¿Está corriendo?');
+      }
+    }
+
+    // ---- Configuración de Clabe ----
+    async function loadSettings() {
+      const res = await fetch(API + '/settings', { headers: { 'x-admin-key': getKey() } });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al cargar configuración.');
+      document.getElementById('set-clabe').value = data.settings.clabe || '';
+      document.getElementById('set-bank').value = data.settings.bank || '';
+      document.getElementById('set-beneficiary').value = data.settings.beneficiary || '';
+      document.getElementById('set-concept').value = data.settings.concept || '';
+      document.getElementById('set-invite-link').value = data.settings.inviteLink || '';
+      document.getElementById('set-referrals-required').value = data.settings.referralsRequired || 10;
+    }
+
+    async function saveSettings() {
+      const body = {
+        clabe: document.getElementById('set-clabe').value.trim(),
+        bank: document.getElementById('set-bank').value.trim(),
+        beneficiary: document.getElementById('set-beneficiary').value.trim(),
+        concept: document.getElementById('set-concept').value.trim(),
+        inviteLink: document.getElementById('set-invite-link').value.trim(),
+        referralsRequired: document.getElementById('set-referrals-required').value.trim()
+      };
+      const msgEl = document.getElementById('settings-msg');
+      msgEl.style.color = '#16a34a';
+      msgEl.textContent = 'Guardando...';
+      try {
+        const res = await fetch(API + '/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-key': getKey() },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!res.ok) { msgEl.style.color = '#b91c1c'; msgEl.textContent = data.error || 'Error al guardar.'; return; }
+        msgEl.textContent = 'Guardado — ya es lo que ven los usuarios al depositar.';
+        setTimeout(() => { msgEl.textContent = ''; }, 4000);
+      } catch (e) {
+        msgEl.style.color = '#b91c1c';
+        msgEl.textContent = 'No se pudo conectar al backend.';
+      }
+    }
+
+    // ---- Referidos manuales ----
+    async function loadReferrals() {
+      const res = await fetch(API + '/referral-claims', { headers: { 'x-admin-key': getKey() } });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al cargar referidos.');
+      renderReferrals(data.claims);
+    }
+
+    function renderReferrals(rows) {
+      const wrap = document.getElementById('referrals-wrap');
+      if (!rows.length) {
+        wrap.innerHTML = '<div class="empty">No hay solicitudes de referidos todavía.</div>';
+        return;
+      }
+      const statusLabel = { pending: 'Pendiente', approved: 'Aprobado', rejected: 'Rechazado' };
+      wrap.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>Usuario (invitador)</th><th>Invitado (ID/contacto)</th><th>Estado</th><th>Fecha</th><th>Acciones</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(c => `
+              <tr>
+                <td>${c.userContact}</td>
+                <td>${c.invitedContact}</td>
+                <td><span class="status ${c.status}">${statusLabel[c.status] || c.status}</span></td>
+                <td>${new Date(c.createdAt).toLocaleString('es-MX')}</td>
+                <td class="actions">
+                  <button class="authorize" ${c.status !== 'pending' ? 'disabled' : ''} onclick="resolveReferral('${c.id}','approve')">Aprobar</button>
+                  <button class="reject" ${c.status !== 'pending' ? 'disabled' : ''} onclick="resolveReferral('${c.id}','reject')">Rechazar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function resolveReferral(id, action) {
+      const labels = { approve: 'aprobar (esto llena su Cofre de Referidos)', reject: 'rechazar' };
+      if (!confirm(`¿Seguro que quieres ${labels[action]} este referido?`)) return;
+      const res = await fetch(`${API}/referral-claims/${id}/${action}`, {
+        method: 'POST',
+        headers: { 'x-admin-key': getKey() }
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || 'Error al procesar.'); return; }
+      loadReferrals();
+    }
+
+    // ---- Depósitos ----
+    async function loadDeposits() {
+      const res = await fetch(API + '/deposits', { headers: { 'x-admin-key': getKey() } });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al cargar depósitos.');
+      renderDeposits(data.deposits);
+    }
+
+    function renderDeposits(rows) {
+      const wrap = document.getElementById('deposits-wrap');
+      if (!rows.length) {
+        wrap.innerHTML = '<div class="empty">No hay solicitudes de depósito todavía.</div>';
+        return;
+      }
+      const statusLabel = { pending: 'Pendiente', authorized: 'Autorizado', rejected: 'Rechazado' };
+      wrap.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>Usuario</th><th>Método</th><th>Monto</th><th>Bono</th><th>Referencia</th><th>Estado</th><th>Fecha</th><th>Acciones</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(d => `
+              <tr>
+                <td>${d.userContact}</td>
+                <td>${d.method}</td>
+                <td>$${Number(d.amount).toFixed(2)}</td>
+                <td>${d.bonusAccepted ? 'Sí' : 'No'}</td>
+                <td>${d.internalReference}</td>
+                <td><span class="status ${d.status}">${statusLabel[d.status] || d.status}</span></td>
+                <td>${new Date(d.createdAt).toLocaleString('es-MX')}</td>
+                <td class="actions">
+                  <button class="authorize" ${d.status !== 'pending' ? 'disabled' : ''} onclick="resolveDeposit('${d.id}','authorize')">Autorizar</button>
+                  <button class="reject" ${d.status !== 'pending' ? 'disabled' : ''} onclick="resolveDeposit('${d.id}','reject')">Rechazar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function resolveDeposit(id, action) {
+      const labels = { authorize: 'autorizar (esto acredita saldo/bono al usuario)', reject: 'rechazar' };
+      if (!confirm(`¿Seguro que quieres ${labels[action]} este depósito?`)) return;
+      const res = await fetch(`${API}/deposits/${id}/${action}`, {
+        method: 'POST',
+        headers: { 'x-admin-key': getKey() }
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || 'Error al procesar.'); return; }
+      loadDeposits();
+    }
+
+    // ---- Retiros ----
+    async function loadWithdrawals() {
+      const res = await fetch(API + '/withdrawals', { headers: { 'x-admin-key': getKey() } });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al cargar retiros.');
+      renderTable(data.withdrawals);
+    }
+
+    function renderTable(rows) {
+      const wrap = document.getElementById('table-wrap');
+      if (!rows.length) {
+        wrap.innerHTML = '<div class="empty">No hay solicitudes de retiro todavía.</div>';
+        return;
+      }
+      const statusLabel = {
+        pending: 'Pendiente', authorized: 'Autorizado', returned: 'Regresado', fraud_flagged: 'Fraude'
+      };
+      wrap.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>Usuario</th><th>Titular</th><th>Banco</th><th>Cuenta</th><th>Monto</th><th>Estado</th><th>Fecha</th><th>Acciones</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(w => `
+              <tr>
+                <td>${w.userContact}</td>
+                <td>${w.accountHolder}</td>
+                <td>${w.bank}</td>
+                <td>${w.accountNumber}</td>
+                <td>$${Number(w.amount).toFixed(2)}</td>
+                <td><span class="status ${w.status}">${statusLabel[w.status] || w.status}</span></td>
+                <td>${new Date(w.createdAt).toLocaleString('es-MX')}</td>
+                <td class="actions">
+                  <button class="authorize" ${w.status !== 'pending' ? 'disabled' : ''} onclick="resolveWithdrawal('${w.id}','authorize')">Autorizar</button>
+                  <button class="return" ${w.status !== 'pending' ? 'disabled' : ''} onclick="resolveWithdrawal('${w.id}','return')">Regresar fondos</button>
+                  <button class="fraud" ${w.status !== 'pending' ? 'disabled' : ''} onclick="resolveWithdrawal('${w.id}','fraud')">Alerta de fraude</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function resolveWithdrawal(id, action) {
+      const key = getKey();
+      const labels = { authorize: 'autorizar', return: 'regresar los fondos de', fraud: 'marcar como fraude' };
+      if (!confirm(`¿Seguro que quieres ${labels[action]} esta solicitud?`)) return;
+      const res = await fetch(`${API}/withdrawals/${id}/${action}`, {
+        method: 'POST',
+        headers: { 'x-admin-key': key }
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || 'Error al procesar.'); return; }
+      loadWithdrawals();
+    }
+
+    // Autocompletar la llave si ya se guardó antes en este navegador.
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('afxx_admin_key');
+      if (saved) {
+        document.getElementById('admin-key').value = saved;
+        enterPanel();
+      }
+    });
+  </script>
+</body>
+</html>

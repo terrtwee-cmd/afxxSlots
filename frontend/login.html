@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Iniciar sesión — AFXX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;600;700;800&family=Alumni+Sans:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="assets/brand/logo-coin.png" />
+</head>
+<body>
+  <div class="phone-shell auth-shell">
+    <header class="m-header">
+      <button class="auth-back" onclick="window.location.href='index.html'" aria-label="Volver">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <img src="assets/logo.png" alt="AFXX" class="m-logo" />
+      <span style="width:34px"></span>
+    </header>
+
+    <main class="m-views auth-views">
+      <div class="auth-promo">
+        <h2>HASTA UN</h2>
+        <div class="big">25%</div>
+        <h2>DE CASHBACK SEMANAL</h2>
+        <img class="auth-promo-art auth-promo-mascot" src="assets/mascot/mascot-full.png" alt="Mascota AFXX" />
+      </div>
+
+      <div class="auth-form">
+        <h3>Iniciar sesión</h3>
+        <div class="input-group">
+          <input type="text" class="input" id="login-contact" placeholder="Correo electrónico / Número de teléfono" />
+        </div>
+        <div class="input-group">
+          <input type="password" class="input" id="login-pwd" placeholder="Contraseña" />
+          <button class="input-toggle" onclick="togglePwd('login-pwd', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <label class="checkbox-row" style="justify-content: space-between; gap: 0;">
+          <span style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" checked />
+            Recuérdame
+          </span>
+          <a href="#" class="link-text">¿Olvidaste tu contraseña?</a>
+        </label>
+        <button class="btn btn-success btn-lg btn-block" style="margin-top: 8px;" onclick="doLogin()">Iniciar sesión</button>
+        <p id="login-error" style="color:#e11d2e; font-size:12px; text-align:center; margin-top:6px;"></p>
+        <p style="text-align: center; font-size: 13px; margin-top: 8px;">
+          ¿No tienes una cuenta? <a href="register.html" class="link-text">Registrarse</a>
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+
+    async function doLogin() {
+      const contact = document.getElementById('login-contact').value.trim();
+      const password = document.getElementById('login-pwd').value;
+      const errorEl = document.getElementById('login-error');
+      errorEl.textContent = '';
+      if (!contact || !password) {
+        errorEl.textContent = 'Escribe tu correo/teléfono y contraseña.';
+        return;
+      }
+      try {
+        const res = await fetch(API_BASE + '/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contact, password })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          errorEl.textContent = data.error || 'No se pudo iniciar sesión.';
+          return;
+        }
+        localStorage.setItem('afxx_token', data.token);
+        window.location.href = 'index.html';
+      } catch (e) {
+        errorEl.textContent = 'No se pudo conectar al backend. ¿El backend está corriendo?';
+      }
+    }
+
+    function togglePwd(id, btn) {
+      const inp = document.getElementById(id);
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22"/></svg>';
+      } else {
+        inp.type = 'password';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+      }
+    }
+  </script>
+</body>
+</html>

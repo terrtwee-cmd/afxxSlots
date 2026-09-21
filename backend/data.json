@@ -1,0 +1,129 @@
+{
+  "users": [
+    {
+      "id": "7088aa1a-a6dd-44ed-b893-97019cce2d31",
+      "contact": "perro@perro.com",
+      "passwordHash": "$2a$10$ycS0elTfbovN3mj1x1vhoe1ll6ByN08Iw0kjhFLdO38s4rWWwuZYW",
+      "status": "active",
+      "balance": 0,
+      "rolloverRequired": 0,
+      "rolloverWagered": 0,
+      "createdAt": "2026-09-14T16:59:38.661Z"
+    },
+    {
+      "id": "a849035c-bac3-4fba-803e-d8fa4623e319",
+      "contact": "aau",
+      "password": "popopopo",
+      "status": "active",
+      "balance": 0,
+      "rolloverRequired": 0,
+      "rolloverWagered": 0,
+      "createdAt": "2026-09-19T11:51:08.774Z"
+    },
+    {
+      "id": "e6eecea9-0904-4b03-ba6d-32c688bfc039",
+      "contact": "Sparrow",
+      "password": "Pqtito.1",
+      "status": "active",
+      "balance": 0,
+      "rolloverRequired": 0,
+      "rolloverWagered": 0,
+      "createdAt": "2026-09-19T12:36:09.001Z"
+    },
+    {
+      "id": "2b342b6c-b15a-4c09-9940-747bb08aaf19",
+      "contact": "4771329617",
+      "password": "Vampiiro",
+      "status": "active",
+      "balance": 0,
+      "rolloverRequired": 0,
+      "rolloverWagered": 0,
+      "createdAt": "2026-09-19T12:58:15.102Z"
+    },
+    {
+      "id": "3a404c32-af32-44d5-9add-bf703f18bb5b",
+      "contact": "6221643773",
+      "password": "estherelincitabb",
+      "status": "active",
+      "balance": 0,
+      "rolloverRequired": 0,
+      "rolloverWagered": 0,
+      "createdAt": "2026-09-19T12:59:20.153Z"
+    },
+    {
+      "id": "3f4689c9-fe62-4337-8286-55a52aeb1b00",
+      "contact": "glez72730@gmail.com",
+      "password": "Gonzawesj#12",
+      "status": "active",
+      "balance": 0,
+      "rolloverRequired": 0,
+      "rolloverWagered": 0,
+      "createdAt": "2026-09-19T13:03:42.010Z"
+    },
+    {
+      "id": "db50fa29-91bb-4bc3-9410-a10ade6d8d15",
+      "contact": "laloit555.lt@gmail.com",
+      "password": "RyuAkasaki55",
+      "status": "active",
+      "balance": 0,
+      "rolloverRequired": 0,
+      "rolloverWagered": 0,
+      "createdAt": "2026-09-19T13:04:39.291Z"
+    },
+    {
+      "id": "4b3dbe92-dc71-4d96-b706-4458308ee48c",
+      "contact": "8132700694",
+      "password": "Rayados12",
+      "status": "active",
+      "balance": 0,
+      "rolloverRequired": 0,
+      "rolloverWagered": 0,
+      "createdAt": "2026-09-19T13:07:16.092Z"
+    }
+  ],
+  "deposits": [
+    {
+      "id": "02bb7cae-312f-43fc-982a-0d517744325e",
+      "userId": "a849035c-bac3-4fba-803e-d8fa4623e319",
+      "method": "SPEI",
+      "amount": 300,
+      "bonusAccepted": true,
+      "internalReference": "DEP-CB39F250",
+      "status": "pending",
+      "createdAt": "2026-09-19T11:51:52.303Z",
+      "reviewedAt": null
+    },
+    {
+      "id": "ec093397-0084-4e2c-b654-0825885b405d",
+      "userId": "e6eecea9-0904-4b03-ba6d-32c688bfc039",
+      "method": "SPEI",
+      "amount": 500,
+      "bonusAccepted": true,
+      "internalReference": "DEP-98DA1BA7",
+      "status": "pending",
+      "createdAt": "2026-09-19T13:50:40.905Z",
+      "reviewedAt": null
+    },
+    {
+      "id": "be8f18b0-75ac-4062-8f04-2690cef99058",
+      "userId": "2b342b6c-b15a-4c09-9940-747bb08aaf19",
+      "method": "SPEI",
+      "amount": 50,
+      "bonusAccepted": true,
+      "internalReference": "DEP-5B661B4E",
+      "status": "pending",
+      "createdAt": "2026-09-19T18:46:49.493Z",
+      "reviewedAt": null
+    }
+  ],
+  "withdrawals": [],
+  "settings": {
+    "clabe": "730969000006972349",
+    "bank": "Stp/clip",
+    "beneficiary": "SPEI",
+    "concept": "Pago",
+    "inviteLink": "Https://afxxbet-link.onrender.com",
+    "referralsRequired": 10
+  },
+  "referralClaims": []
+}

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>AFXX | Casino online y apuestas</title>
+<link href="assets/brand/logo-coin.png" rel="icon" type="image/png"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;600;700;800&amp;family=Alumni+Sans:wght@600;700;800;900&amp;family=Inter:wght@400;500;600;700&amp;family=Tilt+Warp&amp;display=swap" rel="stylesheet"/>
+<link href="styles.css" rel="stylesheet"/>
+<link href="vendor/swiper/swiper-bundle.min.css" rel="stylesheet"/>
+</head>
+<body>
+<!-- =================== SPLASH SCREEN =================== -->
+<div class="splash-screen" id="splash-screen">
+<div class="splash-frame">
+<img alt="AFXX" class="splash-img splash-1" src="assets/brand/logo-red.png"/>
+<img alt="AFXX" class="splash-img splash-2" src="assets/mascot/mascot-head.png"/>
+<img alt="AFXX" class="splash-img splash-3" src="assets/brand/logo-coin.png"/>
+</div>
+<div class="splash-loading">Cargando…</div>
+</div>
+<div class="phone-shell">
+<!-- =================== HEADER (logged OUT) =================== -->
+<header class="m-header" hidden="" id="header-out">
+<img alt="AFXX" class="m-logo" src="assets/logo.png"/>
+<div class="m-header-actions">
+<a class="btn btn-success btn-sm" href="login.html">Iniciar sesión</a>
+<a class="btn btn-primary btn-sm" href="register.html">Registrarse</a>
+</div>
+</header>
+<!-- =================== HEADER (logged IN) =================== -->
+<header class="m-header" id="header-in">
+<img alt="AFXX" class="m-logo" src="assets/logo.png"/>
+<div class="m-header-actions">
+<div class="m-balance-pill">
+<img alt="" class="coin-ico" src="assets/brand/logo-coin.png"/><span id="header-balance">5.00</span>
+</div>
+<button class="btn btn-primary btn-sm" onclick="openScreen('deposit')">Depósito</button>
+<button class="m-avatar" id="open-mine" title="Mi cuenta">
+<div class="avatar-circle">A</div>
+</button>
+</div>
+</header>
+<!-- =================== VIEWS =================== -->
+<main class="m-views">
+<!-- ---------- INICIO ---------- -->
+<section class="m-view" data-view="home" id="view-home">
+<!-- Banners de promociones producidos (3 banners delgados) -->
+<div class="promo-banners-stack">
+  <a class="promo-banner-img" data-action="open-promo" data-promo="deposito" href="javascript:void(0)">
+    <img alt="Bono de Depósito 100%" src="assets/promos/promo-segunda.png"/>
+  </a>
+  <a class="promo-banner-img" data-action="open-promo" data-promo="cofre" href="javascript:void(0)">
+    <img alt="Cofre de Referidos $900 por 10 amigos" src="assets/promos/promo-cofre.png"/>
+  </a>
+  <a class="promo-banner-img" data-action="open-promo" data-promo="elite" href="javascript:void(0)">
+    <img alt="Afiliados Elite" src="assets/promos/promo-elite.png"/>
+  </a>
+</div>
+<!-- (mini-promos removidos: INVITA y 30% BONO DE ALIVIO) -->
+<!-- Ganadores recientes (datos de demostración, sin iconos ni nombres de slot) -->
+<div class="section-row-header"><h2 class="section-title-sm">Ganadores recientes</h2></div>
+<div class="wins-ticker">
+<div class="win-chip">
+<div class="win-info">
+<div class="win-price"><span class="coin">$</span> 8,540.00</div>
+<div class="win-user">ID: 284736</div>
+<div class="win-game">Juego: Fortune Gems 500</div>
+</div>
+</div>
+<div class="win-chip">
+<div class="win-info">
+<div class="win-price"><span class="coin">$</span> 14,200.00</div>
+<div class="win-user">ID: 261592</div>
+<div class="win-game">Juego: Aztec Gems Megaways</div>
+</div>
+</div>
+<div class="win-chip">
+<div class="win-info">
+<div class="win-price"><span class="coin">$</span> 4,330.00</div>
+<div class="win-user">ID: 297481</div>
+<div class="win-game">Juego: 5 Lions Dance</div>
+</div>
+</div>
+<div class="win-chip">
+<div class="win-info">
+<div class="win-price"><span class="coin">$</span> 12,690.00</div>
+<div class="win-user">ID: 238912</div>
+<div class="win-game">Juego: Wild Bandito</div>
+</div>
+</div>
+<div class="win-chip">
+<div class="win-info">
+<div class="win-price"><span class="coin">$</span> 9,870.00</div>
+<div class="win-user">ID: 271056</div>
+<div class="win-game">Juego: Sugar Rush 1000</div>
+</div>
+</div>
+</div>
+<!-- Top 10 juegos -->
+<section class="section">
+<div class="section-header">
+<h2 class="section-title"><span class="top">Top 10</span> Juegos</h2>
+<div class="row-nav">
+<button aria-label="Anterior" class="row-arrow" data-dir="-1" data-scroll-target="top10-row">‹</button>
+<button aria-label="Siguiente" class="row-arrow" data-dir="1" data-scroll-target="top10-row">›</button>
+</div>
+</div>
+<div class="swiper rank-swiper" id="top10-row">
+
+
+
+
+
+
+
+
+
+
+<div class="swiper-wrapper"><div class="swiper-slide"><div class="rank-card">
+<div class="rank-thumb"><img alt="Fortune Dragon" src="assets/games/fortune-dragon.jpg"/></div>
+<div class="rank-badge rank-badge-img"><img alt="1" src="assets/brand/rank-1.png"/></div>
+<div class="rank-name">FORTUNE DRAGON</div>
+<div class="rank-live"><span class="live-dot"></span>7704 Jugando</div>
+</div></div><div class="swiper-slide"><div class="rank-card">
+<div class="rank-thumb"><img alt="Fortune Garuda 500" src="assets/games/fortune-garuda-500.jpg"/></div>
+<div class="rank-badge rank-badge-img"><img alt="2" src="assets/brand/rank-2.png"/></div>
+<div class="rank-name">FORTUNE GARUDA 500</div>
+<div class="rank-live"><span class="live-dot"></span>1701 Jugando</div>
+</div></div><div class="swiper-slide"><div class="rank-card">
+<div class="rank-thumb"><img alt="Joker's Jewels" src="assets/games/jokers-jewels.jpg"/></div>
+<div class="rank-badge rank-badge-img"><img alt="3" src="assets/brand/rank-3.png"/></div>
+<div class="rank-name">JOKER'S JEWELS</div>
+<div class="rank-live"><span class="live-dot"></span>3551 Jugando</div>
+</div></div><div class="swiper-slide"><div class="rank-card">
+<div class="rank-thumb"><img alt="Gold Party" src="assets/games/gold-party.jpg"/></div>
+<div class="rank-badge rank-badge-img"><img alt="4" src="assets/brand/rank-4.png"/></div>
+<div class="rank-name">GOLD PARTY</div>
+<div class="rank-live"><span class="live-dot"></span>1120 Jugando</div>
+</div></div><div class="swiper-slide"><div class="rank-card">
+<div class="rank-thumb"><img alt="Fortune Rabbit" src="assets/games/fortune-rabbit.jpg"/></div>
+<div class="rank-badge rank-badge-img"><img alt="5" src="assets/brand/rank-5.png"/></div>
+<div class="rank-name">FORTUNE RABBIT</div>
+<div class="rank-live"><span class="live-dot"></span>980 Jugando</div>
+</div></div><div class="swiper-slide"><div class="rank-card">
+<div class="rank-thumb"><img alt="Aztec Gems" src="assets/games/aztec-gems.jpg"/></div>
+<div class="rank-badge rank-badge-img"><img alt="6" src="assets/brand/rank-6.png"/></div>
+<div class="rank-name">AZTEC GEMS</div>
+<div class="rank-live"><span class="live-dot"></span>2210 Jugando</div>
+</div></div><div class="swiper-slide"><div class="rank-card">
+<div class="rank-thumb"><img alt="5 Lions Dance" src="assets/games/5-lions-dance.jpg"/></div>
+<div class="rank-badge rank-badge-img"><img alt="7" src="assets/brand/rank-7.png"/></div>
+<div class="rank-name">5 LIONS DANCE</div>
+<div class="rank-live"><span class="live-dot"></span>1560 Jugando</div>
+</div></div><div class="swiper-slide"><div class="rank-card">
+<div class="rank-thumb"><img alt="Crazy 777" src="assets/games/crazy-777.jpg"/></div>
+<div class="rank-badge rank-badge-img"><img alt="8" src="assets/brand/rank-8.png"/></div>
+<div class="rank-name">CRAZY 777</div>
+<div class="rank-live"><span class="live-dot"></span>990 Jugando</div>
+</div></div><div class="swiper-slide"><div class="rank-card">
+<div class="rank-thumb"><img alt="Cash Mania" src="assets/games/cash-mania.jpg"/></div>
+<div class="rank-badge rank-badge-img"><img alt="9" src="assets/brand/rank-9.png"/></div>
+<div class="rank-name">CASH MANIA</div>
+<div class="rank-live"><span class="live-dot"></span>845 Jugando</div>
+</div></div><div class="swiper-slide"><div class="rank-card">
+<div class="rank-thumb"><img alt="Sugar Rush 1000" src="assets/games/sugar-rush-1000.jpg"/></div>
+<div class="rank-badge">10</div>
+<div class="rank-name">SUGAR RUSH 1000</div>
+<div class="rank-live"><span class="live-dot"></span>760 Jugando</div>
+</div></div></div></div>
+</section>
+<!-- Multiplicadores Altos -->
+<section class="section">
+<div class="section-header"><h2 class="section-title-sm">Multiplicadores Altos</h2><span class="see-all">Todo ›</span></div>
+<div class="swiper rank-swiper">
+<div class="swiper-wrapper">
+<div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Garuda 1000" src="assets/games/fortune-garuda-1000.jpg"/></div><div class="game-info"><div class="game-name">Fortune Garuda 1000</div></div></div></div>
+<div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Coins" src="assets/games/fortune-coins-hit-the-cash.jpg"/></div><div class="game-info"><div class="game-name">Fortune Coins</div></div></div></div>
+<div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Garuda 500" src="assets/games/fortune-garuda-500.jpg"/></div><div class="game-info"><div class="game-name">Fortune Garuda 500</div></div></div></div>
+<div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Gems 500" src="assets/games/fortune-gems-500.jpg"/></div><div class="game-info"><div class="game-name">Fortune Gems 500</div></div></div></div>
+<div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Horse" src="assets/games/fortune-horse.jpg"/></div><div class="game-info"><div class="game-name">Fortune Horse</div></div></div></div>
+</div>
+</div>
+</section>
+<!-- Divider de marca (reproduce el patrón de las capturas) -->
+<div class="brand-divider">
+<button aria-label="Anterior" class="row-arrow">‹</button>
+<img alt="AFXX" class="brand-divider-logo" src="assets/logo.png"/>
+<button aria-label="Siguiente" class="row-arrow">›</button>
+</div>
+<!-- Deportes teaser -->
+<section class="section">
+<div class="match-card">
+<div class="match-header">
+<span class="match-league">Fútbol • Liga MX</span>
+<span class="tag-hot"><img class="ico-inline ico-14" src="assets/icons/icon-hot-flame.png" alt=""/>Caliente</span>
+</div>
+<div class="match-teams">
+<div class="team">
+<div class="team-crest img-placeholder"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 15c-3 0-6 1.8-6 4.5C6 21 7.5 22 9 21l3-1.5L15 21c1.5 1 3 0 3-1.5 0-2.7-3-4.5-6-4.5z"></path><circle cx="7" cy="10" r="1.6"></circle><circle cx="12" cy="8" r="1.6"></circle><circle cx="17" cy="10" r="1.6"></circle></svg></span></div>
+<span>Pumas Unam</span>
+</div>
+<div class="match-time">
+<div class="time">21:05</div>
+<div class="date">10/09/2026</div>
+</div>
+<div class="team">
+<div class="team-crest img-placeholder"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 15c-3 0-6 1.8-6 4.5C6 21 7.5 22 9 21l3-1.5L15 21c1.5 1 3 0 3-1.5 0-2.7-3-4.5-6-4.5z"></path><circle cx="7" cy="10" r="1.6"></circle><circle cx="12" cy="8" r="1.6"></circle><circle cx="17" cy="10" r="1.6"></circle></svg></span></div>
+<span>Club León</span>
+</div>
+</div>
+<div class="match-odds">
+<button class="odd-btn">1 <span class="odd-val">+106</span></button>
+<button class="odd-btn">Empate <span class="odd-val">+255</span></button>
+<button class="odd-btn">2 <span class="odd-val">+235</span></button>
+</div>
+</div>
+</section>
+<div class="brand-divider">
+<button aria-label="Anterior" class="row-arrow">‹</button>
+<img alt="AFXX" class="brand-divider-logo" src="assets/logo.png"/>
+<button aria-label="Siguiente" class="row-arrow">›</button>
+</div>
+</section>
+<!-- ---------- CASINO ---------- -->
+<section class="m-view" data-view="casino" hidden="" id="view-casino">
+<div class="invite-banner">
+<div class="invite-text">
+<span class="invite-tag">👤 Invita a un usuario válido</span>
+<h3>Y RECIBE AL INSTANTE<br/><strong>$177.00 <small>MXN</small></strong></h3>
+</div>
+<div class="invite-art"><span class="ico"><img src="assets/icons/icon-gift-box.png" alt=""/></span></div>
+</div>
+<div class="search-bar">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+<input placeholder="Buscar" type="text"/>
+</div>
+<div class="pill-tabs" id="casino-tabs">
+<button class="pill-tab active" data-tab="lobby">⊞ Lobby</button>
+<button class="pill-tab" data-tab="originales"><img class="ico-inline ico-14" src="assets/icons/icon-lightning-original.png" alt=""/>Originales</button>
+<button class="pill-tab" data-tab="slots">7️⃣ Slots</button>
+</div>
+<section class="section">
+<div class="section-header"><h2 class="section-title-sm">Recomendado</h2><span class="see-all">Todo ›</span></div>
+<div class="swiper rank-swiper">
+
+
+
+
+
+
+<div class="swiper-wrapper"><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Piñata Wins" src="assets/games/pinata-wins.jpg"/></div><div class="game-info"><div class="game-name">Piñata Wins</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Wild Bandito" src="assets/games/wild-bandito.jpg"/></div><div class="game-info"><div class="game-name">Wild Bandito</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="3 Coin Golden Ox" src="assets/games/3-coin-golden-ox.jpg"/></div><div class="game-info"><div class="game-name">3 Coin Golden Ox</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="3 Lucky Piggy" src="assets/games/3-lucky-piggy.jpg"/></div><div class="game-info"><div class="game-name">3 Lucky Piggy</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Coin Infinity" src="assets/games/coin-infinity.jpg"/></div><div class="game-info"><div class="game-name">Coin Infinity</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Devil Fire 2" src="assets/games/devil-fire-2.jpg"/></div><div class="game-info"><div class="game-name">Devil Fire 2</div></div></div></div></div></div>
+</section>
+<section class="section">
+<div class="section-header"><h2 class="section-title-sm">Juegos de la fortuna</h2><span class="see-all">Todo ›</span></div>
+<div class="swiper rank-swiper">
+
+
+
+
+
+
+<div class="swiper-wrapper"><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Mouse" src="assets/games/fortune-mouse.jpg"/></div><div class="game-info"><div class="game-name">Fortune Mouse</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Coins Hit the Cash" src="assets/games/fortune-coins-hit-the-cash.jpg"/></div><div class="game-info"><div class="game-name">Fortune Coins</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Gems 2" src="assets/games/fortune-gems-2.png"/></div><div class="game-info"><div class="game-name">Fortune Gems 2</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Gems 500" src="assets/games/fortune-gems-500.jpg"/></div><div class="game-info"><div class="game-name">Fortune Gems 500</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Garuda 500" src="assets/games/fortune-garuda-500.jpg"/></div><div class="game-info"><div class="game-name">Fortune Garuda 500</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Joker's Jewels Hot" src="assets/games/jokers-jewels-hot.jpg"/></div><div class="game-info"><div class="game-name">Joker's Jewels Hot</div></div></div></div></div></div>
+</section>
+<section class="section">
+<div class="section-header"><h2 class="section-title-sm">Clásicos</h2><span class="see-all">Todo ›</span></div>
+<div class="swiper rank-swiper">
+
+
+
+
+
+
+
+<div class="swiper-wrapper"><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Trees of Treasure" src="assets/games/trees-of-treasure.jpg"/></div><div class="game-info"><div class="game-name">Trees of Treasure</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="3 Coin Treasures" src="assets/games/3-coin-treasures.jpg"/></div><div class="game-info"><div class="game-name">3 Coin Treasures</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="3 Lucky Baozhu" src="assets/games/3-lucky-baozhu.jpg"/></div><div class="game-info"><div class="game-name">3 Lucky Baozhu</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="10 Sparkling Crown" src="assets/games/10-sparkling-crown.jpg"/></div><div class="game-info"><div class="game-name">10 Sparkling Crown</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="40 Sparkling Crown" src="assets/games/40-sparkling-crown.jpg"/></div><div class="game-info"><div class="game-name">40 Sparkling Crown</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="7 Clovers of Fortune" src="assets/games/7-clovers-of-fortune.jpg"/></div><div class="game-info"><div class="game-name">7 Clovers of Fortune</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Aztec Gems Megaways" src="assets/games/aztec-gems-megaways.jpg"/></div><div class="game-info"><div class="game-name">Aztec Gems Megaways</div></div></div></div></div></div>
+</section>
+<section class="section">
+<div class="section-header"><h2 class="section-title-sm">Suerte Salvaje</h2><span class="see-all">Todo ›</span></div>
+<div class="swiper rank-swiper">
+<div class="swiper-wrapper"><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Horse" src="assets/games/fortune-horse.jpg"/></div><div class="game-info"><div class="game-name">Fortune Horse</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Lucky Tiger" src="assets/games/lucky-tiger.jpg"/></div><div class="game-info"><div class="game-name">Lucky Tiger</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Lucky Jaguar" src="assets/games/lucky-jaguar.jpg"/></div><div class="game-info"><div class="game-name">Lucky Jaguar</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Lucky Jaguar 2" src="assets/games/lucky-jaguar-2.jpg"/></div><div class="game-info"><div class="game-name">Lucky Jaguar 2</div></div></div></div></div></div>
+</section>
+<section class="section">
+<div class="section-header"><h2 class="section-title-sm">Joker Especiales</h2><span class="see-all">Todo ›</span></div>
+<div class="swiper rank-swiper">
+<div class="swiper-wrapper"><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Golden Joker" src="assets/games/golden-joker.jpg"/></div><div class="game-info"><div class="game-name">Golden Joker</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Golden Joker Alt" src="assets/games/golden-joker-2.png"/></div><div class="game-info"><div class="game-name">Golden Joker</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Jackpot Joker" src="assets/games/jackpot-joker.jpg"/></div><div class="game-info"><div class="game-name">Jackpot Joker</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Joker's Jewels Alt" src="assets/games/jokers-jewels-2.jpg"/></div><div class="game-info"><div class="game-name">Joker's Jewels</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Joker's Jewels Hot Alt" src="assets/games/jokers-jewels-hot-2.jpg"/></div><div class="game-info"><div class="game-name">Joker's Jewels Hot</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Joker Coins Hit the Cash" src="assets/games/joker-coins-hit-the-cash.jpg"/></div><div class="game-info"><div class="game-name">Joker Coins</div></div></div></div></div></div>
+</section>
+<section class="section">
+<div class="section-header"><h2 class="section-title-sm">Efectivo Rápido</h2><span class="see-all">Todo ›</span></div>
+<div class="swiper rank-swiper">
+<div class="swiper-wrapper"><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Money Coming" src="assets/games/money-coming.jpg"/></div><div class="game-info"><div class="game-name">Money Coming</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Money Coming 2" src="assets/games/money-coming-2.jpg"/></div><div class="game-info"><div class="game-name">Money Coming 2</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Hot Triple Sevens" src="assets/games/hot-triple-sevens.jpg"/></div><div class="game-info"><div class="game-name">Hot Triple Sevens</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Gates of Olympus" src="assets/games/gates-of-olympus.jpg"/></div><div class="game-info"><div class="game-name">Gates of Olympus</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Gold Party Alt" src="assets/games/gold-party-2.jpg"/></div><div class="game-info"><div class="game-name">Gold Party</div></div></div></div><div class="swiper-slide"><div class="game-card"><div class="game-thumb"><img alt="Fortune Tiger" src="assets/games/fortune-tiger.png"/></div><div class="game-info"><div class="game-name">Fortune Tiger</div></div></div></div></div></div>
+</section>
+</section>
+<!-- ---------- DEPORTES ---------- -->
+<section class="m-view" data-view="deportes" hidden="" id="view-deportes">
+<div class="section-header"><h2 class="section-title-sm">Fútbol y más</h2></div>
+<div id="sports-list" class="sports-list">
+  <p class="placeholder-block">Cargando partidos…</p>
+</div>
+</section>
+<!-- ---------- AFILIADO ---------- -->
+<section class="m-view" data-view="afiliado" hidden="" id="view-afiliado">
+<div class="hero-banner hero-banner-sm">
+<img alt="AFXX Afiliados" src="assets/brand/banner-affiliate.png"/>
+</div>
+<div class="pill-tabs scrollable" id="afiliado-tabs">
+<button class="pill-tab active" data-atab="referido">Bono Referido</button>
+<button class="pill-tab" data-atab="panel">Panel de Control</button>
+<button class="pill-tab" data-atab="ganancias">Mis Ganancias</button>
+<button class="pill-tab" data-atab="elite">Elite</button>
+<button class="pill-tab" data-atab="reglas">Reglas</button>
+</div>
+<!-- Bono Referido -->
+<div class="a-subview" data-asub="referido">
+<button class="btn-block" data-action="copy-invite">👤+ Invita a un amigo</button>
+<div class="referral-friend-note">Tu amigo recibirá <strong>$77.00 MXN</strong></div>
+
+<h3 class="section-title-sm mt">Cofre de Referidos</h3>
+<div class="chest-simple">
+<img alt="Cofre de Referidos" class="chest-simple-img" src="assets/affiliate/chest.png"/>
+<div class="chest-simple-progress">
+<div class="chest-progress-label">Invita a tus amigos <strong id="referral-progress-text">0/10</strong></div>
+<div class="progress-track"><div class="progress-fill" id="referral-progress-fill" style="width:0%"></div></div>
+</div>
+</div>
+
+<div class="referral-claim-card">
+<label>¿Ya tienes un invitado que cumplió los requisitos? Manda su ID/contacto para revisión:</label>
+<div class="referral-claim-row">
+<input id="referral-claim-input" placeholder="ID o contacto de tu invitado" type="text"/>
+<button class="referral-claim-btn" onclick="submitReferralClaim()">Enviar</button>
+</div>
+<p id="referral-claim-msg"></p>
+<div id="referral-claim-list"></div>
+</div>
+</div>
+<!-- Panel de Control -->
+<div class="a-subview" data-asub="panel" hidden="">
+<div class="dark-card glass-edge">
+<div class="dark-card-header">
+<h3>Información <span class="accent-red">del Equipo</span></h3>
+<button class="link-btn">Detalles ›</button>
+</div>
+<div class="progress-row">
+<span>👥 Total de Referidos Válidos: <strong>0/1</strong></span>
+<div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="progress-row">
+<span><img class="ico-inline ico-16" src="assets/icons/icon-slot-jackpot.png" alt=""/>Total de Apuestas Hoy: <strong>0.00/50.00</strong></span>
+<div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+</div>
+</div>
+<h3 class="section-title-sm mt">Ganancias Nivel 0</h3>
+<div class="two-col-cards">
+<div class="stat-card"><div class="stat-icon">💵</div><div class="stat-label">Comisión Hasta</div><div class="stat-value">0.25%</div></div>
+<div class="stat-card"><div class="stat-icon"><span class="ico"><img src="assets/icons/icon-gift-box.png" alt=""/></span></div><div class="stat-label">Bono Referido</div><div class="stat-value">$ 1,276,460.00</div></div>
+</div>
+<div class="dots-row"><span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+<div class="ref-link-box">
+<label>Enlace de Referencia</label>
+<div class="ref-link-row">
+<input id="invite-link-input" readonly="" type="text" value="https://twa.afxx.mx/?ch=1270002"/>
+<button data-action="copy-invite">Copiar</button>
+</div>
+</div>
+<button class="btn-block" data-action="copy-invite">Invita &amp; Gana</button>
+<div class="black-card glass-edge">
+<div class="black-card-top">
+<span class="crown"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 18h16l1-9-5 3-4-6-4 6-5-3z"></path></svg></span></span>
+<div>
+<div class="black-card-label">Ganancias Totales</div>
+<div class="black-card-value">$ 0.00</div>
+</div>
+</div>
+<div class="black-card-bottom">
+<div><span class="num">0</span><span class="lbl">Referidos Hoy</span></div>
+<div><span class="num">0</span><span class="lbl">Referidos</span></div>
+</div>
+</div>
+</div>
+<!-- Mis Ganancias -->
+<div class="a-subview" data-asub="ganancias" hidden="">
+<div class="earnings-box">
+<div class="earnings-row">
+<span class="earnings-icon">👥</span>
+<div class="earnings-mid"><div class="earnings-title">Comisión</div><div class="earnings-amount">$ 0.00</div><div class="earnings-sub">Ganó $ 0.00 Hoy</div></div>
+<button class="chip-btn">Reglas</button>
+</div>
+<div class="earnings-row">
+<span class="earnings-icon"><span class="ico"><img src="assets/icons/icon-gift-box.png" alt=""/></span></span>
+<div class="earnings-mid"><div class="earnings-title">Bono Referido</div><div class="earnings-amount">$ 0.00</div><div class="earnings-sub">Bono Esperado: $ 0.00</div></div>
+<button class="chip-btn">Reglas</button>
+</div>
+<div class="earnings-row">
+<span class="earnings-icon"><img class="ico-fit" src="assets/icons/icon-ticket-tournament.png" alt=""/></span>
+<div class="earnings-mid"><div class="earnings-title">Cofre de Referidos</div><div class="earnings-amount">$ 0.00</div><div class="earnings-sub">Invita a amigos de 1 para desbloquear un bono $ 50.00 ⓘ</div></div>
+<button class="chip-btn">Reglas</button>
+</div>
+</div>
+<div class="claim-banner">
+<div>
+<div class="claim-label">Ganancias Disponibles</div>
+<div class="claim-value">$ 0.00</div>
+</div>
+<button class="btn btn-primary">Reclamar</button>
+</div>
+<button class="btn-block" data-action="copy-invite">Invita &amp; Gana</button>
+<div class="segmented">
+<button class="segmented-btn active">Recibido</button>
+<button class="segmented-btn">Retirado</button>
+<span class="segmented-side">Registros ›</span>
+</div>
+<div class="pill-tabs scrollable">
+<button class="pill-tab active">Comisión</button>
+<button class="pill-tab">Bono Referido</button>
+<button class="pill-tab">Bono Depósito</button>
+<button class="pill-tab">Bono de Nivel</button>
+</div>
+</div>
+<!-- Bonos -->
+<div class="a-subview" data-asub="elite">
+<div class="elite-banner">
+<img alt="Afiliados Elite" src="assets/affiliate/banner-elite.png"/>
+<div class="elite-banner-text">
+<p>¿Quieres formar parte de nuestro exclusivo team de afiliados elite?</p>
+<a class="elite-cta" href="https://wa.me/524424524232?text=Hola%20AFXX%2C%20me%20interesa%20ser%20Afiliado%20Elite" target="_blank" rel="noopener">Escríbenos al soporte</a>
+</div>
+</div>
+<div class="elite-benefits">
+<h3 class="section-title-sm">Beneficios</h3>
+<ul>
+<li><strong>FTD:</strong> hasta 22%</li>
+<li>Comisiones diarias mínimas de <strong>$150</strong> por FTD válido</li>
+<li>Código exclusivo para tu invitado: <strong>100 giros</strong> + cupón de segunda recarga</li>
+<li>Cada invitado válido te otorga a ti <strong>22 giros</strong> el día siguiente</li>
+</ul>
+</div>
+</div>
+<!-- Reglas -->
+<div class="a-subview" data-asub="reglas" hidden="">
+<h3 class="section-title-sm">Reglas del programa de referidos</h3>
+<ul class="rules-list">
+<li>Comparte tu enlace de invitación con amigos usando el botón "Invita a un amigo".</li>
+<li>Para que cuente, tu invitado debe registrarse y realizar su primer depósito válido, autorizado por el equipo de AFXX.</li>
+<li>Una vez que tu invitado cumple con esto, manda su ID o contacto en la sección "Cofre de Referidos" para que sea revisado.</li>
+<li>Cada invitado válido solo puede reportarse una vez. Reportes duplicados o con datos falsos no serán aprobados.</li>
+<li>Los referidos aprobados llenan la barra del Cofre de Referidos y cuentan para tus recompensas.</li>
+</ul>
+</div>
+</section>
+<!-- ---------- MENÚ ---------- -->
+<section class="m-view" data-view="menu" hidden="" id="view-menu">
+<div class="hero-banner hero-banner-sm">
+<img alt="Por invitar $177 retirables" src="assets/brand/banner-affiliate.png"/>
+</div>
+<div class="icon-filter-row">
+<button title="Recientes"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M7 11v9M2 13v5a2 2 0 002 2h13a2 2 0 002-1.7l1.4-8A2 2 0 0018.4 8H14l1-5-4 5-4 3z"></path></svg></span></button>
+<button title="Favoritos"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 2l2.9 6.6L22 9.3l-5 5 1.4 7.2L12 18l-6.4 3.5L7 14.3l-5-5 7.1-0.7z"></path></svg></span></button>
+<button title="Historial"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span></button>
+</div>
+<div class="menu-list">
+<button class="menu-item" onclick="openSoon('Próximamente', 'Invita a 2 amigos válidos y sube inmediatamente a VIP 1 + recibe el 20% de sus recargas como bono en tu cuenta.')"><span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 18h16l1-9-5 3-4-6-4 6-5-3z"></path></svg></span></span>Club VIP</button>
+<button class="menu-item" onclick="openModal('bono-deposito')"><span class="menu-icon"><span class="ico"><img src="assets/icons/icon-gift-box.png" alt=""/></span></span>Bono</button>
+<button class="menu-item active-red" data-view-link="afiliado"><span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM19 8v6M22 11h-6"></path></svg></span></span>Afiliado</button>
+<button class="menu-item" onclick="openModal('promotions')"><span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M20 12l-8 8-9-9V4h7z"></path><circle cx="7.5" cy="7.5" fill="currentColor" r="1.2"></circle></svg></span></span>Promociones</button>
+<button class="menu-item"><span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M8 4h8v6a4 4 0 01-8 0V4z"></path><path d="M8 5H4v2a4 4 0 004 4M16 5h4v2a4 4 0 01-4 4M10 17h4M9 21h6M12 14v7"></path></svg></span></span>Torneo</button>
+</div>
+<div class="download-banner">
+<div>
+<div class="download-title">Descargar app</div>
+<div class="download-sub">Reclama un bono exclusivo</div>
+</div>
+<div class="download-art"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="20" rx="2" width="12" x="6" y="2"></rect><path d="M11 18h2"></path></svg></span></div>
+</div>
+<div class="menu-list">
+<button class="menu-item plain"><span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M9.5 9a2.5 2.5 0 114.5 1.5c-.7.7-1.5 1.2-1.5 2.5"></path><circle cx="12" cy="17" fill="currentColor" r="0.6"></circle></svg></span></span>Ayuda</button>
+<button class="menu-item plain"><span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"></path></svg></span></span>Juego responsable</button>
+<button class="menu-item plain"><span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 15v-3a8 8 0 0116 0v3"></path><rect height="6" rx="1.5" width="5" x="2" y="15"></rect><rect height="6" rx="1.5" width="5" x="17" y="15"></rect></svg></span></span>Soporte en vivo</button>
+<button class="menu-item plain"><span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"></path></svg></span></span>Idioma</button>
+</div>
+<div class="menu-timestamp"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span> <span id="live-clock"></span></div>
+</section>
+</main>
+<!-- =================== BOTTOM NAV =================== -->
+<nav class="m-bottomnav" id="bottom-nav">
+<button class="nav-btn" data-view="menu">
+<img alt="" src="assets/icons/icon-nav-menu.png"/>
+<span>Menú</span>
+</button>
+<button class="nav-btn" data-view="home">
+<img alt="" src="assets/icons/icon-nav-home.png"/>
+<span>Inicio</span>
+</button>
+<button class="nav-btn" data-view="casino">
+<img alt="" src="assets/icons/icon-nav-casino.png"/>
+<span>Casino</span>
+</button>
+<button class="nav-btn" data-view="deportes">
+<img alt="" src="assets/icons/icon-nav-deportes.png"/>
+<span>Deportes</span>
+</button>
+<button class="nav-btn" data-view="afiliado">
+<img alt="" src="assets/icons/icon-referral-network.png"/>
+<span>Afiliado</span>
+</button>
+</nav>
+<!-- Cookies -->
+<div class="cookies" id="cookies">
+<div class="cookies-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="9" cy="10" fill="currentColor" r="0.8"></circle><circle cx="14" cy="9" fill="currentColor" r="0.8"></circle><circle cx="15" cy="14" fill="currentColor" r="0.8"></circle><circle cx="10" cy="15" fill="currentColor" r="0.8"></circle></svg></span></div>
+<p>Usamos <a href="#">Cookies</a> para mejorar tu experiencia.</p>
+<button class="btn btn-primary" onclick="document.getElementById('cookies').hidden=true">Acepto</button>
+</div>
+</div>
+<!-- =================== SCREEN: MINE (perfil / wallet) =================== -->
+<div class="app-screen" hidden="" id="screen-mine">
+<div class="screen-header dark">
+<button class="screen-back" onclick="closeAllScreens()">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>
+</button>
+</div>
+<div class="screen-body">
+<div class="mine-avatar-block">
+<div class="mine-avatar">A</div>
+<div class="mine-username">Mi Cuenta <button class="icon-inline" onclick="openSoon('Editar nombre', 'Muy pronto podrás actualizar tu nombre de usuario desde aquí.')"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"></path></svg></span></button></div>
+<div class="mine-id">ID: 209496240 <button class="icon-inline" onclick="navigator.clipboard &amp;&amp; navigator.clipboard.writeText('209496240')"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="17" rx="1.5" width="12" x="6" y="4"></rect><rect height="4" rx="1" width="6" x="9" y="2"></rect><path d="M9 12h6M9 16h6"></path></svg></span></button></div>
+<div class="mine-balance">Saldo: $<span id="mine-balance">0.00</span></div>
+</div>
+<div class="vip-card glass-edge">
+<div class="vip-card-top">
+<span class="vip-level">VIP 0</span>
+<button class="link-btn" onclick="openSoon('Próximamente', 'Invita a 2 amigos válidos y sube inmediatamente a VIP 1 + recibe el 20% de sus recargas como bono en tu cuenta.')">Club VIP ›</button>
+</div>
+<div class="progress-bar"><div class="progress-fill" style="width:0%; background: linear-gradient(90deg, var(--red-3), var(--red));"></div></div>
+<div class="vip-xp">0 XP para VIP 1</div>
+</div>
+<div class="wallet-actions">
+<button class="wallet-btn secondary" onclick="openScreen('withdraw')"><img class="ico-inline ico-18" src="assets/icons/icon-withdraw-card.png" alt=""/>Retirar</button>
+<button class="wallet-btn primary" onclick="openScreen('deposit')"><img class="ico-inline ico-18" src="assets/icons/icon-piggy-bank-add.png" alt=""/>Depositar</button>
+</div>
+<div class="quick-icons-row">
+<button onclick="openSoon('Transacciones', 'Consulta el historial completo de tus depósitos y retiros.')">
+<span class="qi-icon"><img class="ico-fit" src="assets/icons/icon-transactions-refresh.png" alt=""/></span><span>Transacciones</span>
+</button>
+<button onclick="openSoon('Apuestas', 'Consulta el historial completo de tus apuestas.')">
+<span class="qi-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span></span><span>Apuestas</span>
+</button>
+<button onclick="openSoon('Rollover', 'Consulta el requisito de apuesta pendiente antes de poder retirar.')">
+<span class="qi-icon"><img class="ico-fit" src="assets/icons/icon-rollover-chart.png" alt=""/></span><span>Rollover</span>
+</button>
+</div>
+<div class="menu-list">
+<button class="menu-item plain" onclick="openSoon('Notificación', 'Aquí encontrarás tus notificaciones y avisos importantes.')">
+<span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M6 10a6 6 0 1112 0c0 4 1.5 5.5 1.5 5.5H4.5S6 14 6 10z"></path><path d="M10 19a2 2 0 004 0"></path></svg></span></span>Notificación
+          <span class="mi-right"><span class="badge-inline">1</span> ›</span>
+</button>
+<button class="menu-item plain" data-view-link="afiliado">
+<span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM19 8v6M22 11h-6"></path></svg></span></span>Afiliados
+          <span class="mi-right">›</span>
+</button>
+<button class="menu-item plain" onclick="openSoon('Ajustes', 'Gestiona la configuración y seguridad de tu cuenta.')">
+<span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"></path></svg></span></span>Ajustes
+          <span class="mi-right"><span class="dot-alert"></span> ›</span>
+</button>
+<button class="menu-item plain" onclick="openSoon('Idioma', 'Elige el idioma en el que quieres usar AFXX.')">
+<span class="menu-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"></path></svg></span></span>Idioma
+          <span class="mi-right">Español ›</span>
+</button>
+</div>
+<button class="btn-block outline" onclick="logout()">Cerrar sesión</button>
+</div>
+</div>
+<!-- =================== SCREEN: DEPÓSITO =================== -->
+<div class="app-screen" hidden="" id="screen-deposit">
+<div class="screen-header">
+<button class="screen-back" onclick="openScreen('mine')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>
+</button>
+<h3>Depósito</h3>
+<button class="screen-support" onclick="openSoon('Soporte en vivo', 'Nuestro equipo de soporte está disponible para ayudarte.')"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 15v-3a8 8 0 0116 0v3"></path><rect height="6" rx="1.5" width="5" x="2" y="15"></rect><rect height="6" rx="1.5" width="5" x="17" y="15"></rect></svg></span></button>
+</div>
+<div class="screen-body">
+<div class="pay-methods-card">
+<div class="pay-methods-label">Forma de Depósito</div>
+<div class="pay-methods-row" id="dep-methods">
+<button class="pay-method active" data-max="50000" data-min="50" data-range="50-50,000 MXN">
+<strong>SPEI</strong><span>50-50,000 MXN</span>
+</button>
+<button class="pay-method" data-max="5000" data-min="50" data-range="50-5,000 MXN">
+<strong>VISA/MC</strong><span>50-5,000 MXN</span>
+</button>
+<button class="pay-method" data-max="10000" data-min="50" data-range="50-10,000 MXN">
+<strong>OXXO Pay</strong><span>50-10,000 MXN</span>
+</button>
+</div>
+</div>
+<div class="amount-card">
+<div class="amount-range" id="dep-range">50.00 - 50,000.00 MXN</div>
+<input class="amount-input" id="dep-amount" min="50" type="number" value="300"/>
+<div class="amount-grid" id="dep-presets">
+<button class="amount-chip" data-amt="50">$ 50</button>
+<button class="amount-chip" data-amt="100">$ 100 <img class="ico-inline ico-14" src="assets/icons/icon-hot-flame.png" alt=""/></button>
+<button class="amount-chip active" data-amt="300">$ 300 <img class="ico-inline ico-14" src="assets/icons/icon-hot-flame.png" alt=""/></button>
+<button class="amount-chip" data-amt="500">$ 500 <img class="ico-inline ico-14" src="assets/icons/icon-hot-flame.png" alt=""/></button>
+<button class="amount-chip" data-amt="1000">$ 1000 <img class="ico-inline ico-14" src="assets/icons/icon-hot-flame.png" alt=""/></button>
+<button class="amount-chip" data-amt="2000">$ 2000</button>
+<button class="amount-chip" data-amt="5000">$ 5000</button>
+<button class="amount-chip" data-amt="10000">$ 10000</button>
+<button class="amount-chip" data-amt="20000">$ 20000</button>
+</div>
+</div>
+<label class="bonus-row">
+<input checked="" id="dep-bonus" type="checkbox"/>
+<span>Deseo bono de depósito <span class="bonus-tag" id="bonus-tag">+100% bonificación</span></span>
+</label>
+<button class="btn-block" onclick="confirmDeposit()">Depósito</button>
+<details class="info-toggle">
+<summary>¿Cómo hacer un depósito? <span>›</span></summary>
+<p>Elige tu método de pago y monto, confirma, y sigue los pasos que te mostramos en la siguiente pantalla para completar el pago desde tu app bancaria.</p>
+</details>
+<div class="terms-block">
+<p><strong>1.</strong> Después de completar el depósito, podrás participar en actividades y recibir recompensas.</p>
+<p><strong>2.</strong> Verifica que el monto pagado coincida con el monto solicitado — cualquier diferencia puede retrasar la acreditación.</p>
+<p><strong>3.</strong> Depósitos y retiros tienen un mínimo de $50 MXN por transacción. Consulta los Términos y Condiciones para más información.</p>
+</div>
+</div>
+</div>
+<!-- =================== SCREEN: CONFIRMACIÓN DE DEPÓSITO =================== -->
+<div class="app-screen" hidden="" id="screen-deposit-confirm">
+<div class="screen-header">
+<button class="screen-back" onclick="openScreen('deposit')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>
+</button>
+<h3>Método de pago</h3>
+<span style="width:34px"></span>
+</div>
+<div class="screen-body">
+<div class="payment-card glass-edge">
+<div class="payment-label">Importe del pago:</div>
+<div class="payment-amount">MXN$<span id="confirm-amount">0.00</span></div>
+<div class="payment-label">Clabe:</div>
+<div class="payment-clabe" id="payment-clabe">—</div>
+<button class="copy-pill" id="copy-clabe-btn"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="17" rx="1.5" width="12" x="6" y="4"></rect><rect height="4" rx="1" width="6" x="9" y="2"></rect><path d="M9 12h6M9 16h6"></path></svg></span> Copiar</button>
+</div>
+<div class="payment-details-card">
+<div class="pd-row">
+<div><label>Banco Destino:</label><strong id="payment-bank">—</strong></div>
+<button class="copy-pill light" id="copy-bank-btn"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="17" rx="1.5" width="12" x="6" y="4"></rect><rect height="4" rx="1" width="6" x="9" y="2"></rect><path d="M9 12h6M9 16h6"></path></svg></span> Copiar</button>
+</div>
+<div class="pd-row">
+<div><label>Beneficiario:</label><strong id="payment-beneficiary">—</strong></div>
+</div>
+<div class="pd-row">
+<div><label>Concepto (opcional):</label><strong id="payment-concept">—</strong></div>
+<button class="copy-pill light" id="copy-concept-btn"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><rect height="17" rx="1.5" width="12" x="6" y="4"></rect><rect height="4" rx="1" width="6" x="9" y="2"></rect><path d="M9 12h6M9 16h6"></path></svg></span> Copiar</button>
+</div>
+</div>
+<div class="steps-card">
+<div class="step-row"><span class="step-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.5 2.5 5-5"></path></svg></span></span><div><strong>Paso 1</strong><p>Copiar la Clabe.</p></div></div>
+<div class="step-row"><span class="step-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 10h16M5 10v9M9 10v9M15 10v9M19 10v9M3 21h18M12 3l9 5H3z"></path></svg></span></span><div><strong>Paso 2</strong><p>Pegar la Clabe en tu app bancaria e ingresar el monto a pagar.</p></div></div>
+<div class="step-row"><span class="step-icon"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.35-4.35"></path></svg></span></span><div><strong>Paso 3</strong><p>Un administrador confirma el pago a mano y autoriza tu depósito — tu saldo se actualizará en ese momento, no antes.</p></div></div>
+</div>
+</div>
+</div>
+<!-- =================== SCREEN: RETIRAR =================== -->
+<div class="app-screen" hidden="" id="screen-withdraw">
+<div class="screen-header">
+<button class="screen-back" onclick="openScreen('mine')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>
+</button>
+<h3>Retirar</h3>
+<button class="screen-support" onclick="openSoon('Soporte en vivo', 'Nuestro equipo de soporte está disponible para ayudarte.')"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M4 15v-3a8 8 0 0116 0v3"></path><rect height="6" rx="1.5" width="5" x="2" y="15"></rect><rect height="6" rx="1.5" width="5" x="17" y="15"></rect></svg></span></button>
+</div>
+<div class="screen-body">
+<div class="withdraw-form-card">
+<label class="field-label">Titular de la cuenta</label>
+<input class="field-input" id="wd-holder" placeholder="Titular de la cuenta" type="text"/>
+<label class="field-label">Banco</label>
+<button class="field-select" id="wd-bank-btn" onclick="openBankPicker()">
+<span id="wd-bank-label">Selecciona tu banco</span>
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg>
+</button>
+<label class="field-label">Número de cuenta</label>
+<input class="field-input" id="wd-account" placeholder="Número de cuenta / CLABE" type="text"/>
+<div class="withdrawable-row">
+<span>Saldo retirable <strong id="wd-balance">$0.00</strong></span>
+<button class="rollover-chip" onclick="showRolloverInfo()">Rollover pendiente <span id="wd-rollover">$0.00</span> ⓘ</button>
+</div>
+<label class="field-label">Monto de retiro</label>
+<input class="field-input" id="wd-amount" max="50000" min="50" placeholder="0.00" type="number"/>
+<div class="field-hint">50 - 50,000 MXN</div>
+</div>
+<p id="wd-error" style="color:#e11d2e; font-size:12px; margin-bottom:10px;"></p>
+<button class="btn-block" onclick="doWithdraw()">Retirar</button>
+</div>
+</div>
+<!-- =================== MODAL: SELECCIONAR BANCO =================== -->
+<div class="modal-overlay hidden" id="modal-bank-picker">
+<div class="modal bank-picker-modal">
+<div class="bank-picker-header">
+<h3>Seleccionar</h3>
+<button class="modal-close" onclick="closeModal('bank-picker')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+</button>
+</div>
+<div class="search-bar">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+<input id="bank-search" placeholder="Por favor seleccione un banco" type="text"/>
+</div>
+<div class="bank-list" id="bank-list"></div>
+</div>
+</div>
+<!-- =================== MODAL: PROMOCIONES =================== -->
+<div class="modal-overlay hidden" id="modal-promotions">
+<div class="modal promo-list-modal">
+<button class="modal-close" onclick="closeModal('promotions')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+</button>
+<h2 class="promo-list-title">Promociones AFXX</h2>
+<div class="promo-list-scroll">
+<img alt="Por invitar: $177 retirables por cada amigo que invites" class="promo-list-banner" src="assets/promos/promo-invitar.png"/>
+<img alt="Cofre de invitación: $900 por 10 amigos válidos" class="promo-list-banner" src="assets/promos/promo-cofre.png"/>
+<img alt="Afiliados Elite: $200 + 100 giros por FTD válido" class="promo-list-banner" src="assets/promos/promo-elite.png"/>
+<img alt="Bono de segunda oportunidad: hasta 50% de vuelta" class="promo-list-banner" src="assets/promos/promo-segunda.png"/>
+<img alt="Torneos con premios reales" class="promo-list-banner" src="assets/promos/promo-torneos.png"/>
+</div>
+</div>
+</div>
+<!-- =================== MODAL: BONO (depósito) =================== -->
+<div class="modal-overlay hidden" id="modal-bono-deposito">
+<div class="modal promo-modal">
+<button class="modal-close" onclick="closeModal('bono-deposito')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+</button>
+<h2>Bono de Depósito</h2>
+<p class="sub">100% de bono en tu depósito. ¡Duplica tu saldo para jugar!</p>
+<button class="btn-action" onclick="closeModal('bono-deposito'); openScreen('deposit')">Ir a depositar</button>
+</div>
+</div>
+<!-- =================== MODAL: GENÉRICO "PRÓXIMAMENTE" =================== -->
+<div class="modal-overlay hidden" id="modal-soon">
+<div class="modal promo-modal">
+<button class="modal-close" onclick="closeModal('soon')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+</button>
+<h2 id="soon-title">Próximamente</h2>
+<p class="sub" id="soon-text">Muy pronto disponible.</p>
+</div>
+</div>
+<!-- =================== MODAL: PROMO ELITE (auto en carga + post login/registro) =================== -->
+<div class="modal-overlay hidden" id="modal-elite-promo">
+<div class="modal elite-promo-modal">
+<button class="modal-close" onclick="closeModal('elite-promo')">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+</button>
+<img alt="Agentes Elite — $200 por invitado válido" class="elite-promo-img" src="assets/promos/promo-elite-modal.png"/>
+</div>
+</div>
+<!-- =================== WHATSAPP FLOTANTE =================== -->
+<a class="whatsapp-fab" href="https://wa.me/524424524232" rel="noopener" target="_blank" title="Soporte por WhatsApp">
+<img alt="WhatsApp" src="assets/brand/whatsapp.png"/>
+</a>
+</div>
+<script src="vendor/swiper/swiper-bundle.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
