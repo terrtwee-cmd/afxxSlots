@@ -845,8 +845,20 @@ img { max-width: 100%; display: block; }
 /* ---- Ganadores recientes (ticker) ---- */
 .section-row-header { margin-bottom: 8px; }
 .section-title-sm { font-size: 15px; font-weight: 800; }
-.wins-ticker { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 18px; scrollbar-width: none; }
+.wins-ticker { overflow: hidden; padding: 4px 0; margin-bottom: 18px; position: relative; }
 .wins-ticker::-webkit-scrollbar { display: none; }
+.wins-track {
+  display: inline-flex;
+  gap: 8px;
+  white-space: nowrap;
+  animation: wins-marquee 35s linear infinite;
+  will-change: transform;
+}
+.wins-ticker:hover .wins-track { animation-play-state: paused; }
+@keyframes wins-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
 .win-chip {
   flex: 0 0 auto; width: 180px; display: flex; gap: 8px; align-items: center;
   background: var(--bg-card-2); border-radius: var(--radius-sm); padding: 8px;
@@ -855,7 +867,7 @@ img { max-width: 100%; display: block; }
 .win-name { font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100px; }
 .win-price { font-size: 13px; font-weight: 800; color: var(--red); }
 .win-user { font-size: 10px; color: var(--text-muted); }
-.win-game { font-size: 10px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+.win-game { font-size: 9px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; letter-spacing: 0.1px; }
 
 /* ---- Rank row (Top 10 juegos) ---- */
 .row-nav { display: flex; gap: 6px; }
@@ -1000,6 +1012,32 @@ img { max-width: 100%; display: block; }
   width: 100%;
   height: auto;
   display: block;
+}
+
+/* ---- Carrusel automático del casino (cada 5s, slide left) ---- */
+.casino-top-carousel {
+  overflow: hidden;
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  position: relative;
+}
+.casino-top-track {
+  display: flex;
+  width: 300%;
+  transition: transform 0.6s ease-in-out;
+  will-change: transform;
+}
+.casino-top-slide {
+  flex: 0 0 calc(100% / 3);
+  display: block;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.casino-top-slide img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius);
 }
 
 /* ---- Search bar / pill tabs ---- */

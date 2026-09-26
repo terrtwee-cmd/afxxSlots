@@ -9,6 +9,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;600;700;800&family=Alumni+Sans:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" type="image/png" href="assets/brand/logo-coin.png" />
+  <script>
+    // Aplica el modo oscuro guardado antes del primer paint para evitar parpadeo.
+    try {
+      var t = localStorage.getItem('afxx_theme');
+      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    } catch (e) {}
+  </script>
 </head>
 <body>
   <div class="phone-shell auth-shell">

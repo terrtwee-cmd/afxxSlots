@@ -75,10 +75,15 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
   const casinoTabs = document.getElementById('casino-tabs');
   if (casinoTabs) {
+    const lobbyContent = document.getElementById('casino-lobby-content');
+    const originalesContent = document.getElementById('casino-originales-content');
     casinoTabs.querySelectorAll('.pill-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         casinoTabs.querySelectorAll('.pill-tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
+        const target = tab.dataset.tab;
+        if (lobbyContent) lobbyContent.hidden = (target === 'originales');
+        if (originalesContent) originalesContent.hidden = (target !== 'originales');
       });
     });
   }
@@ -538,6 +543,24 @@ document.addEventListener('click', (e) => {
   if (e.target.classList && e.target.classList.contains('modal-overlay')) {
     e.target.classList.add('hidden');
   }
+});
+
+// ---- Carrusel automático del banner superior del casino ----
+// Cada 5 segundos se desliza hacia la izquierda y muestra el siguiente.
+// Como el track tiene 3 slides (A → B → A-clone), el loop es continuo
+// sin saltos visibles: al llegar al final "A-clone" se ve igual que "A"
+// y el regreso a translateX(0) es invisible.
+document.addEventListener('DOMContentLoaded', () => {
+  const track = document.querySelector('.casino-top-track');
+  if (!track) return;
+  const slides = track.querySelectorAll('.casino-top-slide');
+  if (slides.length < 2) return;
+  let current = 0;
+  setInterval(() => {
+    current = (current + 1) % slides.length;
+    const stepPct = 100 / slides.length;
+    track.style.transform = `translateX(-${current * stepPct}%)`;
+  }, 5000);
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
