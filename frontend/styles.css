@@ -1325,14 +1325,13 @@ img { max-width: 100%; display: block; }
 .auth-promo .big { font-size: 40px; font-weight: 900; line-height: 1; margin: 4px 0; }
 .auth-promo-art { font-size: 34px; margin-top: 8px; }
 
-/* ---- Banner promocional en imagen (página de registro) ---- */
-.auth-promo--banner { padding: 14px; }
+/* ---- Banner promocional en imagen (páginas de registro y login) ---- */
+.auth-promo--banner { background: transparent; padding: 0; }
 .auth-promo-banner {
   display: block; width: 100%; height: auto;
-  border-radius: 10px;
+  border-radius: var(--radius);
   box-shadow: 0 10px 24px rgba(0, 0, 0, .38);
 }
-.auth-promo--banner .auth-promo-mascot { width: 104px; margin: 10px auto 0; }
 .auth-form { display: flex; flex-direction: column; gap: 14px; }
 .auth-form h3 { font-family: var(--font-heading); font-size: 20px; font-weight: 700; color: var(--text-primary); }
 .register-badge {
