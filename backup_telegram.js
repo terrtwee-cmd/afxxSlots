@@ -11,9 +11,15 @@ const DB_PATH = path.join(__dirname, "backend", "data.json");
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-if (!BOT_TOKEN || !CHAT_ID) {
-    console.error("[BACKUP] Faltan TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID");
-    process.exit(1);
+// El backup es opcional: si faltan las variables (por ejemplo en un clon
+// nuevo sin .env) el servidor debe seguir arrancando igual. Antes esto
+// apagaba el proceso entero y tumbaba la web.
+const BACKUP_ACTIVO = Boolean(BOT_TOKEN && CHAT_ID);
+
+if (!BACKUP_ACTIVO) {
+    console.warn(
+        "[BACKUP] Sin TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID: el backup automatico queda desactivado (el servidor sigue normal)."
+    );
 }
 
 function sendBackup() {
@@ -83,7 +89,10 @@ function sendBackup() {
 }
 
 // Primer backup inmediatamente al arrancar
-sendBackup();
-
 // Backup cada 10 minutos
-setInterval(sendBackup, 10 * 60 * 1000);
+// (solo si hay credenciales configuradas; si no, el backup queda apagado
+//  y el servidor sigue funcionando con normalidad)
+if (BACKUP_ACTIVO) {
+    sendBackup();
+    setInterval(sendBackup, 10 * 60 * 1000);
+}
