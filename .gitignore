@@ -1,2 +1,9 @@
 .env
 node_modules/
+
+# Datos y secretos del servidor: NUNCA deben subirse al repo.
+# La base de datos viva (backend/data.json) y el .env con
+# ADMIN_KEY / JWT_SECRET / TELEGRAM_BOT_TOKEN son datos privados.
+backend/data.json
+backend/_backup/
+*.log
