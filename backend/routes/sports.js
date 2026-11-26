@@ -24,7 +24,7 @@ const SPORTSDB_BASE = `https://www.thesportsdb.com/api/v1/json/${SPORTSDB_KEY}`;
 
 const LEAGUE_ID = '4350';            // Mexican Liga MX dentro de TheSportsDB
 const LEAGUE_LABEL = 'Liga MX';
-const CACHE_TTL_MS = Number(process.env.SPORTS_CACHE_MINUTES || 15) * 60 * 1000;
+const CACHE_TTL_MS = Number(process.env.SPORTS_CACHE_MINUTES || 30) * 60 * 1000;
 // La version gratuita de la API corta las rafagas (HTTP 429 de Cloudflare),
 // por eso las consultas van una detras de otra, con una pausa entre ellas.
 const REQUEST_SPACING_MS = Number(process.env.SPORTS_REQUEST_SPACING_MS || 1500);
@@ -120,18 +120,33 @@ async function getJSON(endpoint) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Un endpoint puede pedir espera (429 con retry-after). Se reintenta una sola
+// vez esperando lo que indique la API, con un tope para no colgar la peticion.
+async function fetchEventEndpoint(endpoint) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const data = await getJSON(endpoint);
+      return Array.isArray(data.events) ? data.events : [];
+    } catch (err) {
+      if (err.retryAfter && attempt === 0) {
+        const wait = Math.min(err.retryAfter * 1000, 20000);
+        console.warn(`[sports] rate limit en ${endpoint}: se reintenta en ${Math.round(wait / 1000)}s`);
+        await sleep(wait);
+        continue;
+      }
+      throw err;
+    }
+  }
+  return [];
+}
+
 // Las consultas van secuenciales: la API gratuita tira 429 con rafagas.
 async function fetchEventsSequential(endpoints) {
   const events = [];
   for (let i = 0; i < endpoints.length; i++) {
     try {
-      const data = await getJSON(endpoints[i]);
-      if (Array.isArray(data.events)) events.push(...data.events);
+      events.push(...await fetchEventEndpoint(endpoints[i]));
     } catch (err) {
-      if (err.retryAfter) {
-        console.warn(`[sports] ${endpoints[i]}: rate limit. Se corta la tanda.`);
-        break;
-      }
       console.warn(`[sports] fallo en ${endpoints[i]}: ${err.message}`);
     }
     if (i < endpoints.length - 1) await sleep(REQUEST_SPACING_MS);
@@ -277,11 +292,20 @@ async function loadMatches() {
     return a.timestamp - b.timestamp;
   });
 
-  return {
+  const result = {
     matches: list.slice(0, MAX_MATCHES),
     source: 'thesportsdb',
     updatedAt: new Date().toISOString()
   };
+
+  // Si esta tanda salio incompleta (rate limit), es mejor servir el dato
+  // guardado la vez anterior que dejar la pantalla a medias.
+  const prev = lastGood.get('matches');
+  if (prev && prev.matches && prev.matches.length > result.matches.length) {
+    console.warn('[sports] tanda incompleta: se conserva el dato anterior.');
+    return prev;
+  }
+  return result;
 }
 
 // ============================================================

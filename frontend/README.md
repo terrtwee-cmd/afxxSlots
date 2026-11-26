@@ -64,8 +64,9 @@ Detalles que conviene saber:
 
 - La **API gratuita corta las ráfagas** (HTTP 429 de Cloudflare), así que el backend
   consulta los endpoints **uno tras otro** con una pausa entre ellos y guarda todo en
-  **caché de 15 minutos**. Si la API falla, se sigue sirviendo el último dato
-  conocido y, en último caso, datos de ejemplo.
+  **caché de 30 minutos**. Si un endpoint pide espera, se reintenta una vez según el
+  `retry-after`; si la tanda sale incompleta se conserva el dato anterior y, en
+  último caso, se sirven datos de ejemplo.
 - Para usar una clave propia: `SPORTSDB_KEY=...` en `backend/.env`
   (sin tocar código). Otros ajustes: `SPORTS_CACHE_MINUTES`, `SPORTS_REQUEST_SPACING_MS`.
 - La API pública **no trae momios**: los botones 1 / Empate / 2 salen con "—"
