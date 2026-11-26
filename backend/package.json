@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Backend simple para AFXX: registro/login, depositos, retiros, rollover y panel admin.",
   "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "node server.js"
   },
