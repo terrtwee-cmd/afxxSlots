@@ -249,11 +249,13 @@ async function loadMatches() {
 
   const endpoints = [
     `eventsnextleague.php?id=${LEAGUE_ID}`,
-    `eventslive.php?s=Soccer`,
     `eventsday.php?d=${today}&s=Soccer`,
     `eventsday.php?d=${tomorrow}&s=Soccer`,
     `eventsday.php?d=${inTwoDays}&s=Soccer`,
     ...teamIds.map((id) => `eventsnext.php?id=${id}`)
+    // Nota: `eventslive.php` no existe en la version gratuita (404), por eso no
+    // se consulta. Los partidos en vivo llegan por los eventos de estos
+    // endpoints, que traen su estado (1H/2H/HT) y se marca como EN VIVO.
   ];
 
   const raw = await fetchEventsSequential(endpoints);
