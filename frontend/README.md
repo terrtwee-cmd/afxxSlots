@@ -11,6 +11,7 @@ Frontend de la app AFXX (casino online y apuestas). Identidad: **blanco + rojo**
 | `register.html` | Pantalla de registro |
 | `styles.css` | Todo el CSS compartido (variables, componentes, modales) |
 | `app.js` | Navegación entre vistas, modales, llamadas al backend |
+| `theme.js` | Motor de tema claro/oscuro: selector de primera visita, botón de cambio y persistencia |
 | `assets/` | Imágenes: logo, mascota, banners, juegos, íconos de ranking |
 
 ## Cómo abrirlo
@@ -26,6 +27,19 @@ cd frontend
 python3 -m http.server 8000
 # abre http://localhost:8000
 ```
+
+## Tema claro / oscuro
+
+El fondo de todo el sitio es configurable y la preferencia se guarda en el navegador.
+
+- Al entrar por primera vez se muestra un selector **antes del splash** (solo esa vez)
+  con las opciones **Claro** y **Oscuro**; por defecto se arranca en **Oscuro**.
+- El botón redondo de la barra superior (sol/luna) cambia el tema cuando quieras.
+- La preferencia vive en `localStorage` bajo la clave `afxx_theme` y se aplica en las
+  4 páginas (inicio, login, registro y panel de admin) sin parpadeo: cada página
+  carga un script inline en el `<head>` que fija `data-theme` antes del primer pintado.
+- Los colores se controlan con variables CSS en `:root`; el modo oscuro está en el
+  bloque `[data-theme="dark"]` de `styles.css`.
 
 ## Estructura de assets
 

@@ -22,6 +22,8 @@
   --text-secondary: #6b7280;
   --text-muted:     #9ca3af;
   --text-on-red:    #ffffff;
+  --inverse-bg:     #111111;
+  --inverse-fg:     #ffffff;
 
   /* === RED PALETTE (identidad principal) === */
   --red:            #DD0201;   /* rojo de marca AFXX — medido directo del logo */
@@ -124,7 +126,7 @@ img { max-width: 100%; display: block; }
 .sidebar-item svg { width: 22px; height: 22px; }
 .sidebar-item .item-label {
   position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%);
-  background: var(--text-primary); color: white;
+  background: var(--inverse-bg); color: var(--inverse-fg);
   padding: 4px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap;
   opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 10;
 }
@@ -173,7 +175,7 @@ img { max-width: 100%; display: block; }
   transition: all 0.2s;
 }
 .search-input::placeholder { color: var(--text-muted); }
-.search-input:focus { border-color: var(--red); background: white; box-shadow: 0 0 0 3px var(--red-tint); }
+.search-input:focus { border-color: var(--red); background: var(--bg-card); box-shadow: 0 0 0 3px var(--red-tint); }
 .search-wrap svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 16px; height: 16px; }
 .header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 .icon-btn {
@@ -194,7 +196,7 @@ img { max-width: 100%; display: block; }
   border-radius: 8px;
   min-width: 16px; text-align: center;
   line-height: 1.4;
-  box-shadow: 0 0 0 2px white;
+  box-shadow: 0 0 0 2px var(--bg-page);
 }
 .icon-btn.gift-icon { color: var(--red); }
 .btn {
@@ -209,7 +211,7 @@ img { max-width: 100%; display: block; }
 .btn-primary { background: var(--red); color: white; box-shadow: var(--shadow-red); }
 .btn-primary:hover { background: var(--red-2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(225, 29, 72, 0.35); }
 .btn-success {
-  background: white;
+  background: var(--bg-card);
   color: var(--red);
   border-color: var(--red);
 }
@@ -413,7 +415,7 @@ img { max-width: 100%; display: block; }
   position: fixed;
   bottom: 16px; left: 50%;
   transform: translateX(-50%);
-  background: white;
+  background: var(--bg-card);
   padding: 12px 20px;
   border-radius: var(--radius-full);
   display: flex; align-items: center; gap: 16px;
@@ -440,7 +442,7 @@ img { max-width: 100%; display: block; }
 .modal-overlay.hidden { display: none; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .modal {
-  background: white;
+  background: var(--bg-card);
   border-radius: var(--radius-lg);
   max-width: 920px; width: 100%;
   max-height: 90vh; overflow: hidden;
@@ -456,7 +458,7 @@ img { max-width: 100%; display: block; }
   display: flex; align-items: center; justify-content: center;
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--bg-card);
   border: 1px solid var(--border);
   z-index: 5;
   transition: all 0.2s;
@@ -526,7 +528,7 @@ img { max-width: 100%; display: block; }
   outline: none;
   transition: all 0.2s;
 }
-.input:focus { border-color: var(--red); background: white; box-shadow: 0 0 0 3px var(--red-tint); }
+.input:focus { border-color: var(--red); background: var(--bg-card); box-shadow: 0 0 0 3px var(--red-tint); }
 .input::placeholder { color: var(--text-muted); }
 .input-toggle {
   position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
@@ -550,7 +552,7 @@ img { max-width: 100%; display: block; }
   cursor: pointer;
   transition: all 0.2s;
 }
-.dropdown:hover { border-color: var(--red); background: white; }
+.dropdown:hover { border-color: var(--red); background: var(--bg-card); }
 .dropdown svg { width: 14px; height: 14px; color: var(--text-muted); }
 .checkbox-row { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--text-secondary); cursor: pointer; line-height: 1.4; }
 .checkbox-row input { margin-top: 2px; accent-color: var(--red); flex-shrink: 0; }
@@ -567,7 +569,7 @@ img { max-width: 100%; display: block; }
 }
 .btn-google {
   width: 100%; height: 44px;
-  background: white; color: #444;
+  background: var(--bg-card); color: var(--text-primary);
   border-radius: var(--radius-sm);
   font-weight: 600; font-size: 14px;
   display: flex; align-items: center; justify-content: center; gap: 10px;
@@ -581,7 +583,7 @@ img { max-width: 100%; display: block; }
 .promo-modal {
   width: 480px; max-width: 90vw;
   padding: 32px; text-align: center;
-  background: white;
+  background: var(--bg-card);
   position: relative; overflow: hidden;
   border: 1px solid var(--border);
 }
@@ -678,7 +680,7 @@ img { max-width: 100%; display: block; }
   width: 460px; max-width: 92vw;
   padding: 22px 16px 20px;
   text-align: center;
-  background: white;
+  background: var(--bg-card);
   border: 1px solid var(--border);
 }
 .promo-list-title {
@@ -704,7 +706,7 @@ img { max-width: 100%; display: block; }
   position: fixed;
   top: 0; right: 0;
   width: 280px; height: 100vh;
-  background: white;
+  background: var(--bg-card);
   padding: 80px 0 20px;
   box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
   z-index: 999;
@@ -1630,3 +1632,87 @@ img { max-width: 100%; display: block; }
 }
 .copy-toast.ok  { background: #16a34a; }
 .copy-toast.err { background: #b91c1c; }
+
+/* =====================================================================
+   TEMA CLARO / OSCURO
+   ---------------------------------------------------------------------
+   El atributo data-theme lo pone theme.js en <html>:
+     data-theme="light" -> usa los valores de :root (tema original)
+     data-theme="dark"  -> sobreescribe las variables de :root
+   ===================================================================== */
+
+/* ---- Variables del modo oscuro ---- */
+[data-theme="dark"] {
+  /* Fondos */
+  --bg-page:        #0a0a0c;
+  --bg-page-2:      #101014;
+  --bg-sidebar:     #0d0d10;
+  --bg-card:        #15151a;
+  --bg-card-2:      #1e1e24;
+  --bg-elevated:    #1a1a20;
+  --bg-overlay:     rgba(0, 0, 0, 0.72);
+  --bg-promo-soft:  #2c1416;
+  --bg-promo-mid:   #3d1a1c;
+
+  /* Texto */
+  --text-primary:   #f4f4f6;
+  --text-secondary: #b4b4bd;
+  --text-muted:     #85858f;
+  --text-on-red:    #ffffff;
+
+  /* Rojo de marca: version mas brillante para mantener contraste sobre fondo oscuro */
+  --red:            #ff4a48;
+  --red-2:          #e02220;
+  --red-3:          #ff7a78;
+  --red-4:          #b01513;
+  --red-5:          #7a0d0c;
+  --red-tint:       #3b1516;
+  --red-tint-2:     #4b1b1c;
+  --red-tint-3:     #291011;
+  --red-glow:       rgba(255, 74, 72, 0.30);
+  --red-glow-lg:    rgba(255, 74, 72, 0.50);
+
+  /* Bordes y sombras */
+  --border:         #2a2a33;
+  --border-strong:  #3c3c47;
+  --border-soft:    #212129;
+
+  --shadow-sm:      0 2px 6px rgba(0, 0, 0, 0.45);
+  --shadow:         0 4px 16px rgba(0, 0, 0, 0.55);
+  --shadow-red:     0 4px 16px rgba(255, 74, 72, 0.28);
+  --shadow-lg:      0 20px 60px rgba(0, 0, 0, 0.70);
+}
+
+/* ---- Ajustes puntuales que no se pueden resolver con variables ---- */
+
+/* Los iconos del bottom-nav son PNG oscuros sobre fondo transparente:
+   en modo oscuro hay que invertirlos para que se vean. */
+[data-theme="dark"] .nav-btn img {
+  filter: brightness(0) invert(1);
+  opacity: .45;
+}
+[data-theme="dark"] .nav-btn.active img {
+  filter: brightness(0) saturate(100%) invert(22%) sepia(48%) saturate(3200%) hue-rotate(340deg) brightness(100%) contrast(97%);
+  opacity: 1;
+}
+
+/* Marcador de juego (no tiene imagen real todavia) */
+[data-theme="dark"] .game-thumb .img-placeholder {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Los banners promocionales llevan fondo blanco horneado en el PNG:
+   se atenuan un poco para que no deslumbren en modo oscuro. */
+[data-theme="dark"] .promo-banner-img img,
+[data-theme="dark"] .promo-img,
+[data-theme="dark"] .promo-list-item img {
+  filter: brightness(0.92) contrast(1.03);
+}
+
+/* Sombra del contenedor en modo oscuro */
+[data-theme="dark"] .phone-shell {
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+/* Mientras el usuario elige tema en la primera visita, el splash espera */
+.theme-picker-pending .splash-screen { display: none; }

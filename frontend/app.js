@@ -3,21 +3,35 @@
 // =====================================================
 
 // ---- Splash screen: se oculta cuando la página ya cargó ----
+// Si es la primera visita, el selector de tema (theme.js) se muestra ANTES
+// del splash: por eso esperamos a que el tema esté resuelto para no dejar
+// el splash a medias ni montar el modal encima del selector.
+function whenThemeReady(fn) {
+  if (window.AFXXTheme && typeof window.AFXXTheme.onReady === 'function') {
+    window.AFXXTheme.onReady(fn);
+  } else {
+    fn();
+  }
+}
+
 window.addEventListener('load', function () {
   var splash = document.getElementById('splash-screen');
   if (!splash) return;
-  setTimeout(function () { splash.classList.add('hidden'); }, 1500);
 
-  // ---- Auto-abrir el modal de Promo Elite ----
-  // Se abre SIEMPRE que carga index.html, sin importar cómo llegó aquí:
-  //   - Carga directa de la página (primera visita o refresh)
-  //   - Después de terminar el registro (register.html → window.location = index.html)
-  //   - Después de terminar el login (login.html → window.location = index.html)
-  // Se respeta el splash para que no aparezca "montado" encima de la intro.
-  setTimeout(function () {
-    var elite = document.getElementById('modal-elite-promo');
-    if (elite) elite.classList.remove('hidden');
-  }, 1700); // un pelito después de que se oculta el splash (1500ms)
+  whenThemeReady(function () {
+    setTimeout(function () { splash.classList.add('hidden'); }, 1500);
+
+    // ---- Auto-abrir el modal de Promo Elite ----
+    // Se abre SIEMPRE que carga index.html, sin importar cómo llegó aquí:
+    //   - Carga directa de la página (primera visita o refresh)
+    //   - Después de terminar el registro (register.html → window.location = index.html)
+    //   - Después de terminar el login (login.html → window.location = index.html)
+    // Se respeta el splash para que no aparezca "montado" encima de la intro.
+    setTimeout(function () {
+      var elite = document.getElementById('modal-elite-promo');
+      if (elite) elite.classList.remove('hidden');
+    }, 1700); // un pelito después de que se oculta el splash (1500ms)
+  });
 });
 
 // ---- Estado (logged out / logged in) ----
@@ -163,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 // ---- Reloj en vivo (pantalla Menú) ----
+  const clock = document.getElementById('live-clock');
   if (clock) {
     const tick = () => {
       const d = new Date();

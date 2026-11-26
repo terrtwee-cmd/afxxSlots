@@ -4,8 +4,39 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>AFXX — Panel de Admin</title>
+<script>
+// Anti-parpadeo: aplica el tema guardado antes del primer pintado.
+(function () {
+  var d = document.documentElement;
+  var theme = null, asked = null;
+  try { theme = localStorage.getItem('afxx_theme'); asked = localStorage.getItem('afxx_theme_asked'); } catch (e) {}
+  d.setAttribute('data-theme', (theme === 'light' || theme === 'dark') ? theme : 'dark');
+  if (!asked) d.classList.add('theme-picker-pending');
+})();
+</script>
+<script>
+// theme.js vive en /frontend. Se prueban las dos rutas posibles segun
+// este panel se sirva en la raiz o en un subdirectorio (ADMIN_PATH).
+(function () {
+  var cands = ['/theme.js', '../theme.js'];
+  var i = 0;
+  (function next() {
+    if (i >= cands.length) return;
+    var s = document.createElement('script');
+    s.src = cands[i++];
+    s.onerror = next;
+    document.head.appendChild(s);
+  })();
+})();
+</script>
 <style>
-  :root { --red: #e11d2e; --bg: #f7f7f8; --card: #fff; --border: #e5e5e5; --text: #1a1a1a; --muted: #777; }
+  :root {
+    --red: #e11d2e; --bg: #f7f7f8; --card: #fff; --border: #e5e5e5; --text: #1a1a1a; --muted: #777;
+    /* alias que usa el selector de tema compartido (theme.js) */
+    --bg-card: #fff; --bg-card-2: #f7f7f8; --text-primary: #1a1a1a;
+    --text-secondary: #777; --text-muted: #999;
+    --red-tint-3: #FDECEC; --red-glow: rgba(225,29,72,.25);
+  }
   * { box-sizing: border-box; }
   body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 24px; }
   h1 { font-size: 20px; margin-bottom: 4px; }
@@ -47,10 +78,38 @@
     padding: 9px 16px; font-weight: 700; cursor: pointer;
   }
   #settings-msg { font-size: 12px; color: #16a34a; min-height: 16px; }
+  .admin-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+  /* ---- Modo oscuro (data-theme="dark") ---- */
+  [data-theme="dark"] {
+    --bg: #0a0a0c;
+    --card: #15151a;
+    --border: #2a2a33;
+    --text: #f4f4f6;
+    --muted: #9a9aa5;
+    --red: #ff4a48;
+    --bg-card: #15151a; --bg-card-2: #1e1e24; --text-primary: #f4f4f6;
+    --text-secondary: #b4b4bd; --text-muted: #85858f;
+    --red-tint-3: #291011; --red-glow: rgba(255,74,72,.30);
+  }
+  [data-theme="dark"] th { background: #1c1c22; }
+  [data-theme="dark"] .key-box input,
+  [data-theme="dark"] .settings-card input { background: var(--card); color: var(--text); }
+  [data-theme="dark"] .status.pending { background: rgba(234,179,8,.20); color: #f0c33c; }
+  [data-theme="dark"] .status.authorized { background: rgba(22,163,74,.22); color: #4ade80; }
+  [data-theme="dark"] .status.returned,
+  [data-theme="dark"] .status.rejected { background: rgba(255,255,255,.10); color: #c9c9d1; }
+  [data-theme="dark"] .status.fraud_flagged { background: rgba(225,29,72,.24); color: #ff8f8f; }
+  [data-theme="dark"] .actions .return,
+  [data-theme="dark"] .actions .reject { background: #3f3f4a; }
+  [data-theme="dark"] #settings-msg { color: #4ade80; }
 </style>
 </head>
 <body>
-  <h1>AFXX — Panel de Admin</h1>
+  <div class="admin-top">
+    <h1>AFXX — Panel de Admin</h1>
+    <button class="theme-toggle" data-theme-toggle type="button" title="Cambiar de tema"></button>
+  </div>
   <p class="sub">Configura la Clabe de depósito y revisa depósitos y retiros pendientes.</p>
 
   <div class="key-box">

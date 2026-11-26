@@ -9,8 +9,21 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;600;700;800&amp;family=Alumni+Sans:wght@600;700;800;900&amp;family=Inter:wght@400;500;600;700&amp;family=Tilt+Warp&amp;display=swap" rel="stylesheet"/>
+<script>
+// Anti-parpadeo: aplica el tema guardado ANTES del primer pintado.
+// Si es la primera visita, marca la página para que el splash espere al
+// selector de tema (theme.js lo quita cuando el usuario elige).
+(function () {
+  var d = document.documentElement;
+  var theme = null, asked = null;
+  try { theme = localStorage.getItem('afxx_theme'); asked = localStorage.getItem('afxx_theme_asked'); } catch (e) {}
+  d.setAttribute('data-theme', (theme === 'light' || theme === 'dark') ? theme : 'dark');
+  if (!asked) d.classList.add('theme-picker-pending');
+})();
+</script>
 <link href="styles.css" rel="stylesheet"/>
 <link href="vendor/swiper/swiper-bundle.min.css" rel="stylesheet"/>
+<script defer src="theme.js"></script>
 </head>
 <body>
 <!-- =================== SPLASH SCREEN =================== -->
@@ -29,6 +42,7 @@
 <div class="m-header-actions">
 <a class="btn btn-success btn-sm" href="login.html">Iniciar sesión</a>
 <a class="btn btn-primary btn-sm" href="register.html">Registrarse</a>
+<button class="theme-toggle" data-theme-toggle type="button" title="Cambiar de tema"></button>
 </div>
 </header>
 <!-- =================== HEADER (logged IN) =================== -->
@@ -39,6 +53,7 @@
 <img alt="" class="coin-ico" src="assets/brand/logo-coin.png"/><span id="header-balance">5.00</span>
 </div>
 <button class="btn btn-primary btn-sm" onclick="openScreen('deposit')">Depósito</button>
+<button class="theme-toggle" data-theme-toggle type="button" title="Cambiar de tema"></button>
 <button class="m-avatar" id="open-mine" title="Mi cuenta">
 <div class="avatar-circle">A</div>
 </button>

@@ -10,12 +10,18 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" type="image/png" href="assets/brand/logo-coin.png" />
   <script>
-    // Aplica el modo oscuro guardado antes del primer paint para evitar parpadeo.
-    try {
-      var t = localStorage.getItem('afxx_theme');
-      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-    } catch (e) {}
+    // Anti-parpadeo: aplica el tema guardado antes del primer pintado.
+    // Si es la primera visita, el selector de tema (theme.js) se muestra
+    // antes del contenido.
+    (function () {
+      var d = document.documentElement;
+      var theme = null, asked = null;
+      try { theme = localStorage.getItem('afxx_theme'); asked = localStorage.getItem('afxx_theme_asked'); } catch (e) {}
+      d.setAttribute('data-theme', (theme === 'light' || theme === 'dark') ? theme : 'dark');
+      if (!asked) d.classList.add('theme-picker-pending');
+    })();
   </script>
+  <script defer src="theme.js"></script>
 </head>
 <body>
   <div class="phone-shell auth-shell">
@@ -24,7 +30,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
       <img src="assets/logo.png" alt="AFXX" class="m-logo" />
-      <span style="width:34px"></span>
+      <button class="theme-toggle" data-theme-toggle type="button" title="Cambiar de tema"></button>
     </header>
 
     <main class="m-views auth-views">
@@ -62,7 +68,7 @@
           Registrarse
           <span class="register-badge">+50% en el Primer Depósito 🎁</span>
         </button>
-        <p id="register-error" style="color:#e11d2e; font-size:12px; text-align:center; margin-top:6px;"></p>
+        <p id="register-error" style="color:var(--red); font-size:12px; text-align:center; margin-top:6px;"></p>
         <p style="text-align: center; font-size: 13px; margin-top: 4px;">
           ¿Ya tienes una cuenta? <a href="login.html" class="link-text">Iniciar sesión</a>
         </p>
