@@ -49,10 +49,34 @@ El fondo de todo el sitio es configurable y la preferencia se guarda en el naveg
 - `assets/games/` — miniaturas de juegos
 - `assets/affiliate/` — cofre y burbujas de la sección Afiliados
 
+## Deportes (API pública)
+
+La pestaña **Deportes** ya consume datos reales. El backend (`backend/routes/sports.js`)
+consulta **TheSportsDB** (JSON v1, sin registro; clave de prueba gratuita `123`) y
+expone:
+
+| Endpoint | Qué devuelve |
+|---|---|
+| `GET /api/sports/matches` | Próximos partidos (Liga MX primero) con escudos, hora de México y estado: en vivo / final / postponed |
+| `GET /api/sports/table` | Tabla de posiciones de la Liga MX (PJ, G, E, P, DG, PTS) |
+
+Detalles que conviene saber:
+
+- La **API gratuita corta las ráfagas** (HTTP 429 de Cloudflare), así que el backend
+  consulta los endpoints **uno tras otro** con una pausa entre ellos y guarda todo en
+  **caché de 15 minutos**. Si la API falla, se sigue sirviendo el último dato
+  conocido y, en último caso, datos de ejemplo.
+- Para usar una clave propia: `SPORTSDB_KEY=...` en `backend/.env`
+  (sin tocar código). Otros ajustes: `SPORTS_CACHE_MINUTES`, `SPORTS_REQUEST_SPACING_MS`.
+- La API pública **no trae momios**: los botones 1 / Empate / 2 salen con "—"
+  en vez de inventar cuotas. Cuando exista el proveedor real de momios, se
+  rellena el campo `odds` del backend y los botones ya funcionan solos.
+- Al arrancar, el servidor **precalienta la caché** para que la primera visita a
+  la pantalla no espere la consulta.
+
 ## Pendiente (próximas conversaciones)
 
-- Integración de API de deportes en vivo (`view-deportes` sigue con placeholder de carga)
-- Modelos de apuestas deportivas
+- Modelos de apuestas deportivas (cuotas reales del proveedor)
 - Conexión de pasarela de pago real en backend
 
 ## Tipografías

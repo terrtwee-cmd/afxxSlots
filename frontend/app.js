@@ -62,6 +62,7 @@ function showView(view) {
   });
   document.querySelector('.m-views').scrollTo({ top: 0, behavior: 'instant' in document.documentElement.style ? 'instant' : 'auto' });
   if (view === 'afiliado') loadReferralStatus();
+  if (view === 'deportes') { loadSports(); loadSportsTable(); }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -243,10 +244,67 @@ document.addEventListener('DOMContentLoaded', refreshSession);
 document.addEventListener('DOMContentLoaded', loadInviteLink);
 
 // ---- Deportes: carga dinámica desde el backend (mismo patrón que balance/depósitos) ----
-// Ahora mismo el backend responde con datos de ejemplo (ver backend/routes/sports.js).
-// En cuanto tengas el endpoint real de tu proveedor de momios, esto se sigue viendo
-// igual — solo cambia qué datos entrega el backend.
+// Ahora mismo el backend responde con datos reales de la API pública
+// TheSportsDB (ver backend/routes/sports.js): próximos partidos, estado
+// (en vivo / finalizado) y tabla de posiciones de la Liga MX.
 const TEAM_CREST_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15c-3 0-6 1.8-6 4.5C6 21 7.5 22 9 21l3-1.5L15 21c1.5 1 3 0 3-1.5 0-2.7-3-4.5-6-4.5z"/><circle cx="7" cy="10" r="1.6"/><circle cx="12" cy="8" r="1.6"/><circle cx="17" cy="10" r="1.6"/></svg>';
+
+// Los nombres de los equipos vienen de una API externa: se escapan antes de
+// inyectarlos en el HTML.
+function esc(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+function crestImg(url, alt) {
+  if (!url) return `<span class="ico">${TEAM_CREST_ICON}</span>`;
+  return `<img class="team-crest-img" src="${esc(url)}" alt="${esc(alt)}" loading="lazy" referrerpolicy="no-referrer"/>`;
+}
+
+function matchCard(m) {
+  const hasScore = m.scoreHome != null && m.scoreAway != null;
+  const center = hasScore
+    ? `<div class="match-time"><div class="time score">${m.scoreHome} - ${m.scoreAway}</div><div class="date">${esc(m.date)}</div></div>`
+    : `<div class="match-time"><div class="time">${esc(m.time)}</div><div class="date">${esc(m.date)}</div></div>`;
+
+  const tags = [];
+  if (m.status === 'live') tags.push('<span class="tag-live"><i></i>EN VIVO</span>');
+  else if (m.status === 'postponed') tags.push('<span class="tag-status">POSTPONIDO</span>');
+  else if (m.status === 'finished') tags.push('<span class="tag-status">FINAL</span>');
+  if (m.hot && m.status === 'upcoming') {
+    tags.push('<span class="tag-hot"><img class="ico-inline ico-14" src="assets/icons/icon-hot-flame.png" alt=""/>Caliente</span>');
+  }
+
+  // La API pública no entrega momios: se muestran como "—" en vez de inventar.
+  const odds = m.odds
+    ? `<button class="odd-btn">1 <span class="odd-val">${esc(m.odds.home)}</span></button>
+       <button class="odd-btn">Empate <span class="odd-val">${esc(m.odds.draw)}</span></button>
+       <button class="odd-btn">2 <span class="odd-val">${esc(m.odds.away)}</span></button>`
+    : `<button class="odd-btn odd-btn--pending" disabled>1 <span class="odd-val">—</span></button>
+       <button class="odd-btn odd-btn--pending" disabled>Empate <span class="odd-val">—</span></button>
+       <button class="odd-btn odd-btn--pending" disabled>2 <span class="odd-val">—</span></button>`;
+
+  return `
+    <div class="match-card">
+      <div class="match-header">
+        <span class="match-league">${esc(m.league)}</span>
+        <span class="match-tags">${tags.join('')}</span>
+      </div>
+      <div class="match-teams">
+        <div class="team">
+          <div class="team-crest">${crestImg(m.crestHome, m.teamHome)}</div>
+          <span>${esc(m.teamHome)}</span>
+        </div>
+        ${center}
+        <div class="team">
+          <div class="team-crest">${crestImg(m.crestAway, m.teamAway)}</div>
+          <span>${esc(m.teamAway)}</span>
+        </div>
+      </div>
+      <div class="match-odds">${odds}</div>
+    </div>`;
+}
 
 async function loadSports() {
   const list = document.getElementById('sports-list');
@@ -258,29 +316,67 @@ async function loadSports() {
       list.innerHTML = '<p class="placeholder-block">No hay partidos disponibles en este momento.</p>';
       return;
     }
-    list.innerHTML = data.matches.map(m => `
-      <div class="match-card">
-        <div class="match-header">
-          <span class="match-league">${m.league}</span>
-          ${m.hot ? '<span class="tag-hot"><img class="ico-inline ico-14" src="assets/icons/icon-hot-flame.png" alt=""/>Caliente</span>' : ''}
-        </div>
-        <div class="match-teams">
-          <div class="team"><div class="team-crest img-placeholder"><span class="ico">${TEAM_CREST_ICON}</span></div><span>${m.teamHome}</span></div>
-          <div class="match-time"><div class="time">${m.time}</div><div class="date">${m.date}</div></div>
-          <div class="team"><div class="team-crest img-placeholder"><span class="ico">${TEAM_CREST_ICON}</span></div><span>${m.teamAway}</span></div>
-        </div>
-        <div class="match-odds">
-          <button class="odd-btn">1 <span class="odd-val">${m.odds.home}</span></button>
-          <button class="odd-btn">Empate <span class="odd-val">${m.odds.draw}</span></button>
-          <button class="odd-btn">2 <span class="odd-val">${m.odds.away}</span></button>
-        </div>
-      </div>
-    `).join('');
+    list.innerHTML = data.matches.map(matchCard).join('');
+    const note = document.getElementById('sports-source');
+    if (note) {
+      note.textContent = data.source === 'demo'
+        ? 'Datos de ejemplo'
+        : `Datos en vivo · ${data.matches.length} partidos`;
+    }
   } catch (e) {
     list.innerHTML = '<p class="placeholder-block">No se pudo conectar al backend.</p>';
   }
 }
+
+// ---- Tabla de posiciones (Liga MX) ----
+function standingRow(r) {
+  const diff = (r.goalsFor != null && r.goalsAgainst != null) ? (r.goalsFor - r.goalsAgainst) : null;
+  const badge = r.badge
+    ? `<img class="standing-badge" src="${esc(r.badge)}" alt="" loading="lazy" referrerpolicy="no-referrer"/>`
+    : '';
+  return `
+    <div class="standing-row">
+      <span class="standing-rank">${r.rank}</span>
+      <span class="standing-team">${badge}<span class="standing-name">${esc(r.team)}</span></span>
+      <span class="standing-stat">${r.played != null ? r.played : '—'}</span>
+      <span class="standing-stat">${r.win != null ? r.win : '—'}</span>
+      <span class="standing-stat">${r.draw != null ? r.draw : '—'}</span>
+      <span class="standing-stat">${r.loss != null ? r.loss : '—'}</span>
+      <span class="standing-stat">${diff != null ? (diff > 0 ? '+' + diff : diff) : '—'}</span>
+      <span class="standing-points">${r.points != null ? r.points : '—'}</span>
+    </div>`;
+}
+
+async function loadSportsTable() {
+  const box = document.getElementById('sports-table');
+  if (!box) return;
+  try {
+    const res = await fetch(API_BASE + '/sports/table');
+    const data = await res.json();
+    if (!res.ok || !data.table || !data.table.length) {
+      box.innerHTML = '<p class="placeholder-block">Tabla no disponible por ahora.</p>';
+      return;
+    }
+    box.innerHTML = `
+      <div class="standings">
+        <div class="standing-row standing-head">
+          <span class="standing-rank">#</span>
+          <span class="standing-team">Equipo</span>
+          <span class="standing-stat">PJ</span>
+          <span class="standing-stat">G</span>
+          <span class="standing-stat">E</span>
+          <span class="standing-stat">P</span>
+          <span class="standing-stat">DG</span>
+          <span class="standing-points">PTS</span>
+        </div>
+        ${data.table.map(standingRow).join('')}
+      </div>`;
+  } catch (e) {
+    box.innerHTML = '<p class="placeholder-block">No se pudo cargar la tabla.</p>';
+  }
+}
 document.addEventListener('DOMContentLoaded', loadSports);
+document.addEventListener('DOMContentLoaded', loadSportsTable);
 
 // ---- Depósito real ----
 async function confirmDeposit() {
