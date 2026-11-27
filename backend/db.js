@@ -40,8 +40,8 @@ const AJUSTES_FIJOS_EN_CODIGO = {
 // CLABE, este valor NO queda bloqueado: se siembra con el valor del codigo
 // mientras el admin no lo haya cambiado desde el panel. En cuanto el admin
 // lo cambia, su valor gana (asi puede cambiar de institucion sin desplegar).
-const BANCO_POR_DEFECTO = 'nuevo';
-const BANCOS_ANTERIORES = ['Stp/clip', 'Fintoc', ''];
+const BANCO_POR_DEFECTO = 'nvio';
+const BANCOS_ANTERIORES = ['Stp/clip', 'Fintoc', 'nuevo', ''];
 
 // Ajustes que estan fijados (por variable de entorno o dentro del codigo).
 const ajustesFijos = Object.keys(AJUSTES_FIJOS).filter(
@@ -72,7 +72,7 @@ function defaultData() {
       // Datos de pago que se muestran al usuario en la pantalla de depósito.
       // Se configuran desde el panel de admin (/admin), no por variables de entorno.
       clabe: '710969000602104654',
-      bank: 'nuevo',
+      bank: 'nvio',
       beneficiary: 'SPEI',
       concept: 'Pago',
       // Enlace único de invitación que se copia al portapapeles cuando el usuario
