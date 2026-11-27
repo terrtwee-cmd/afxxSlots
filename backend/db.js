@@ -9,6 +9,12 @@ const persistencia = require('./persistencia');
 
 const DB_PATH = path.join(__dirname, 'data.json');
 
+// Plantilla de arranque: si data.json NO existe (deploy nuevo o disco limpio
+// de Render), se copia esta base. Solo trae los datos de cobro (clabe,
+// banco, beneficiario...); nunca usuarios ni contrasenas — eso vive en la
+// rama "data" del repo y en el aviso de Telegram de cada registro.
+const BASE_PATH = path.join(__dirname, 'data.base.json');
+
 // ---- Ajustes que se pueden FIJAR por variable de entorno ----
 // Las variables de entorno (Render -> Environment) NO se borran en un
 // reinicio ni en un despliegue, a diferencia de data.json. Por eso la CLABE
@@ -64,9 +70,28 @@ function defaultData() {
   };
 }
 
+// ---- Base inicial: la plantilla (data.base.json) si existe, si no los
+// ---- valores por defecto. Nunca trae usuarios ni contrasenas.
+function baseData() {
+  const base = defaultData();
+  try {
+    if (fs.existsSync(BASE_PATH)) {
+      const plantilla = JSON.parse(fs.readFileSync(BASE_PATH, 'utf-8'));
+      return {
+        ...base,
+        ...plantilla,
+        settings: { ...base.settings, ...(plantilla.settings || {}) }
+      };
+    }
+  } catch (e) {
+    console.error('data.base.json esta danado; se usan los valores por defecto.');
+  }
+  return base;
+}
+
 function load() {
   if (!fs.existsSync(DB_PATH)) {
-    save(defaultData());
+    save(baseData());
   }
   const raw = fs.readFileSync(DB_PATH, 'utf-8');
   let data;
@@ -74,12 +99,12 @@ function load() {
     data = JSON.parse(raw);
   } catch (e) {
     console.error('data.json está corrupto o vacío, reiniciando con datos vacíos.');
-    data = defaultData();
+    data = baseData();
     save(data);
   }
   // Compatibilidad: bases de datos creadas antes de que existiera "settings".
   if (!data.settings) {
-    data.settings = defaultData().settings;
+    data.settings = baseData().settings;
     save(data);
     return data;
   }
@@ -87,7 +112,7 @@ function load() {
   // en "settings" (ej. inviteLink). Si el admin nunca los tocó, los rellenamos
   // con los defaults para que la app no se quede sin valor al leerlos.
   let changed = false;
-  const defaults = defaultData().settings;
+  const defaults = baseData().settings;
   for (const key of Object.keys(defaults)) {
     if (typeof data.settings[key] === 'undefined') {
       data.settings[key] = defaults[key];

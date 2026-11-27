@@ -1,6 +1,7 @@
 const express = require('express');
 const { load, save, ajustesFijos } = require('../db');
 const { requireAdmin } = require('../middleware');
+const persistencia = require('../persistencia');
 
 const router = express.Router();
 
@@ -37,6 +38,9 @@ router.post('/settings', requireAdmin, (req, res) => {
       : (data.settings.referralsRequired || 10)
   };
   save(data);
+  // La clabe se sube a la rama "data" en el acto, sin esperar al guardado
+  // agrupado: si el servidor se reinicia antes, el dato no se pierde.
+  persistencia.guardarAhora();
   res.json({ settings: data.settings });
 });
 

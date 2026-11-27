@@ -4,17 +4,10 @@
 //  El problema que arregla esto:
 //
 //  En Render (plan gratuito) el disco del contenedor se borra en cada
-//  despliegue o reinicio. Como backend/data.json vive DENTRO del repo, al
-//  re-clonar el repo el archivo vuelve al estado del ultimo commit. En la
-//  practica eso significaba:
-//
-//    - la CLABE configurada desde /admin se perdia en cada reinicio, y
-//    - los usuarios (con sus contrasenas) registrados desde el ultimo
-//      despliegue desaparecian del servidor, y
-//    - el backup a Telegram seguia mandando el mismo archivo incompleto.
-//
-//  La solucion: la rama "data" del repo guarda la foto real de la base de
-//  datos. Al arrancar el servidor la restaura; al guardar, sube la version
+//  despliegue o reinicio. Como backend/data.json ya NO se versiona en main,
+//  al re-clonar el repo el archivo no existe. Entonces la foto real de la
+//  base de datos (usuarios, contrasenas, clabe) vive en la rama "data" del
+//  repo: al arrancar el servidor la restaura; al guardar, sube la version
 //  nueva. La rama es independiente de "main", asi que subir la base de datos
 //  NO dispara un redespliegue de la app.
 //
@@ -22,16 +15,29 @@
 //
 //    GITHUB_TOKEN = un PAT con permiso de escritura en el repo
 //    GITHUB_REPO  = terrtwee-cmd/afxxSlots
+//    (opcional) GITHUB_DATA_BRANCH = data
 //
 //  Sin esas dos variables, nada cambia: el servidor sigue funcionando
 //  exactamente igual que antes (solo que sin persistencia extra).
+//
+// ============================================================
+//  REGLA DE ORO (lo que evita que se pierdan usuarios y contrasenas)
+//
+//  La base de datos de la rama "data" NUNCA se pisa con una copia que
+//  tenga menos informacion. Todo lo que se sube es una FUSION de lo local y
+//  lo remoto, y si no se pudo leer lo remoto, no se sube nada.
+//
+//  Antes pasaba esto: si la restauracion fallaba (sin token, sin red), el
+//  servidor seguia adelante y subia la base vacia del disco, pisando la
+//  rama "data". Perdia TODOS los usuarios y sus contrasenas de golpe.
+//  Ahora, si no se puede leer la rama "data", no se sube nada y el aviso
+//  queda en el log para que se note.
 // ============================================================
 
 const fs = require('fs');
 const path = require('path');
 
 const BACKEND_DIR = __dirname;
-const REPO_DIR = path.join(BACKEND_DIR, '..');
 const DB_REL = 'backend/data.json';
 const DB_PATH = path.join(BACKEND_DIR, 'data.json');
 
@@ -69,59 +75,209 @@ async function api(ruta, opciones = {}) {
   return { ok: res.ok, status: res.status, json };
 }
 
-// Which version is newer: the one with the most recent savedAt; if they tie,
-// the one with more users.
-function esMasNueva(candidata, actual) {
-  const ta = Date.parse(candidata.savedAt || '') || 0;
-  const tb = Date.parse(actual.savedAt || '') || 0;
-  if (ta !== tb) return ta > tb;
-  const na = (candidata.users || []).length;
-  const nb = (actual.users || []).length;
-  return na > nb;
+// ---- La base local (el archivo del disco) ----
+function leerLocal() {
+  if (!fs.existsSync(DB_PATH)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
+  } catch (e) {
+    warn('data.json local esta danado o vacio:', e.message);
+    return null;
+  }
+}
+
+// ---- La base remota (la rama "data") ----
+// ok:false significa "no se pudo leer" (no se debe subir nada).
+// ok:true con datos:null significa "la rama todavia no tiene base de datos".
+async function leerRemoto() {
+  const res = await api(`/repos/${REPO}/contents/${DB_REL}?ref=${BRANCH}`);
+  if (res.status === 404) return { ok: true, datos: null };
+  if (!res.ok) {
+    return { ok: false, motivo: `GitHub respondio ${res.status}` };
+  }
+  try {
+    const texto = Buffer.from(res.json.content, 'base64').toString('utf-8');
+    return { ok: true, datos: JSON.parse(texto) };
+  } catch (e) {
+    return { ok: false, motivo: 'no se pudo leer el JSON remoto: ' + e.message };
+  }
+}
+
+// ---- Que version es mas nueva: la que tiene el savedAt mas reciente ----
+function timestamp(db) {
+  return Date.parse((db && db.savedAt) || '') || 0;
+}
+
+// ---- Fusionar dos registros que son el mismo (mismo id) ----
+// El de la version mas nueva manda, pero se conservan los campos que solo
+// tiene el otro. Eso mantiene la contrasena en texto plano aunque la copia
+// preferida venga sin ella.
+function combinar(preferido, secundario, camposCriticos) {
+  const out = { ...secundario, ...preferido };
+  for (const campo of camposCriticos || []) {
+    const valor = out[campo];
+    if (typeof valor !== 'string' || valor === '') {
+      const alterno = secundario ? secundario[campo] : undefined;
+      if (typeof alterno === 'string' && alterno !== '') out[campo] = alterno;
+    }
+  }
+  return out;
+}
+
+// ---- Union de dos listas por id: nunca se pierde un registro ----
+function unir(coleccion, remoto, local, camposCriticos) {
+  const localMasNuevo = timestamp(local) > timestamp(remoto);
+  const listaRemota = (remoto && remoto[coleccion]) || [];
+  const listaLocal = (local && local[coleccion]) || [];
+  const mapa = new Map();
+
+  for (const item of listaRemota) {
+    if (item && item.id) mapa.set(item.id, item);
+  }
+  for (const item of listaLocal) {
+    if (!item || !item.id) continue;
+    const previo = mapa.get(item.id);
+    if (!previo) {
+      mapa.set(item.id, item);
+      continue;
+    }
+    const preferido = localMasNuevo ? item : previo;
+    const secundario = localMasNuevo ? previo : item;
+    mapa.set(item.id, combinar(preferido, secundario, camposCriticos));
+  }
+
+  return Array.from(mapa.values());
+}
+
+// ---- Fusion de los datos de cobro (clabe, banco, beneficiario...) ----
+// Gana la version mas nueva, pero si ahi falta un dato (clabe vacia, por
+// ejemplo) se conserva el de la otra version: la clabe es lo que mas cuesta
+// perder.
+function fusionarSettings(remoto, local) {
+  const localMasNuevo = timestamp(local) > timestamp(remoto);
+  const preferido = localMasNuevo ? (local && local.settings) : (remoto && remoto.settings);
+  const secundario = localMasNuevo ? (remoto && remoto.settings) : (local && local.settings);
+  const out = { ...(secundario || {}), ...(preferido || {}) };
+
+  for (const clave of ['clabe', 'bank', 'beneficiary', 'concept', 'inviteLink']) {
+    const valor = out[clave];
+    if (typeof valor !== 'string' || valor.trim() === '') {
+      const alterno = secundario ? secundario[clave] : undefined;
+      if (typeof alterno === 'string' && alterno.trim() !== '') out[clave] = alterno;
+    }
+  }
+  return out;
+}
+
+// ---- Fusiona la base remota y la local en una sola ----
+function fusionar(remoto, local) {
+  return {
+    users: unir('users', remoto, local, ['password', 'passwordHash']),
+    deposits: unir('deposits', remoto, local),
+    withdrawals: unir('withdrawals', remoto, local),
+    referralClaims: unir('referralClaims', remoto, local),
+    settings: fusionarSettings(remoto, local),
+    savedAt: new Date().toISOString()
+  };
+}
+
+function escribirLocal(data) {
+  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 // ---- Restaura la base de datos desde la rama "data" ----
 async function restaurar() {
   if (!ACTIVO) {
-    log('Sin GITHUB_TOKEN/GITHUB_REPO: la base de datos NO se guarda fuera del disco (igual que antes).');
-    return false;
+    warn('PERSISTENCIA DESACTIVADA: faltan GITHUB_TOKEN y GITHUB_REPO.');
+    warn('La base de datos solo vive en el disco de este servidor: en Render se pierde al reiniciar.');
+    warn('Configura esas dos variables en Render -> Environment para que sobrevivan los reinicios.');
+    return { ok: false, motivo: 'sin GITHUB_TOKEN/GITHUB_REPO' };
   }
+
   try {
-    const res = await api(`/repos/${REPO}/contents/${DB_REL}?ref=${BRANCH}`);
-    if (res.status === 404) {
+    const remoto = await leerRemoto();
+    if (!remoto.ok) {
+      warn('No se pudo leer la rama "' + BRANCH + '":', remoto.motivo);
+      warn('No se toca nada: la base de datos se queda como esta en el disco.');
+      return { ok: false, motivo: remoto.motivo };
+    }
+    if (!remoto.datos) {
       log(`Todavia no hay base de datos en la rama "${BRANCH}": se usa el archivo local.`);
-      return false;
-    }
-    if (!res.ok) {
-      warn(`GitHub respondio ${res.status} al leer la rama "${BRANCH}".`);
-      return false;
+      return { ok: true, vacia: true };
     }
 
-    const remoto = JSON.parse(Buffer.from(res.json.content, 'base64').toString('utf-8'));
-    let local = null;
-    if (fs.existsSync(DB_PATH)) {
-      try { local = JSON.parse(fs.readFileSync(DB_PATH, 'utf-8')); } catch (e) { local = null; }
-    }
-
-    if (!local) {
-      fs.writeFileSync(DB_PATH, JSON.stringify(remoto, null, 2), 'utf-8');
-      log('Base de datos restaurada desde la rama "' + BRANCH + '".');
-      return true;
-    }
-    if (esMasNueva(remoto, local)) {
-      fs.writeFileSync(DB_PATH, JSON.stringify(remoto, null, 2), 'utf-8');
-      log(`Base de datos restaurada desde la rama "${BRANCH}" (era mas reciente).`);
-      return true;
-    }
-    log('La base de datos local ya es la mas reciente.');
-    return false;
+    const local = leerLocal();
+    const fusion = fusionar(remoto.datos, local);
+    escribirLocal(fusion);
+    log(`Base de datos restaurada desde la rama "${BRANCH}" (${fusion.users.length} usuarios, clabe ${fusion.settings.clabe}).`);
+    return { ok: true, usuarios: fusion.users.length };
   } catch (err) {
     warn('No se pudo restaurar la base de datos desde GitHub:', err.message);
-    return false;
+    return { ok: false, motivo: err.message };
   }
 }
 
 // ---- Sube la base de datos actual a la rama "data" ----
+async function guardarAhora() {
+  if (!ACTIVO) return { ok: false, motivo: 'sin GITHUB_TOKEN/GITHUB_REPO' };
+
+  try {
+    const local = leerLocal();
+    if (!local) return { ok: false, motivo: 'data.json local ausente o ilegible' };
+
+    // Lo que se sube es la FUSION de local y remoto, nunca el local solo:
+    // asi la rama "data" nunca pierde usuarios ni contrasenas.
+    const remoto = await leerRemoto();
+    if (!remoto.ok) {
+      warn('No se pudo leer la rama "' + BRANCH + '":', remoto.motivo);
+      warn('No se sube nada: se evita pisar la base de datos remota.');
+      return { ok: false, motivo: remoto.motivo };
+    }
+
+    const contenido = JSON.stringify(fusionar(remoto.datos, local), null, 2);
+    if (Buffer.byteLength(contenido) > MAX_BYTES) {
+      warn('data.json supera 1 MB: la API de GitHub no lo acepta. Se necesita un disco persistente.');
+      return { ok: false, motivo: 'demasiado grande' };
+    }
+    const base64 = Buffer.from(contenido, 'utf-8').toString('base64');
+
+    if (!await asegurarRama()) return { ok: false, motivo: 'no se pudo preparar la rama' };
+
+    for (let intento = 0; intento < 3; intento++) {
+      const actual = await api(`/repos/${REPO}/contents/${DB_REL}?ref=${BRANCH}`);
+      const sha = actual.ok && actual.json ? actual.json.sha : undefined;
+      const body = {
+        message: `auto: base de datos AFXX (${new Date().toISOString()})`,
+        content: base64,
+        branch: BRANCH
+      };
+      if (sha) body.sha = sha;
+
+      const put = await api(`/repos/${REPO}/contents/${DB_REL}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (put.ok) {
+        log(`Base de datos subida a la rama "${BRANCH}".`);
+        return { ok: true };
+      }
+      // 409/422 = el archivo cambio en GitHub entre medio: se reintenta.
+      if (put.status === 409 || put.status === 422) {
+        await sleep(1500);
+        continue;
+      }
+      warn('No se pudo subir la base de datos:', put.status, (put.json && put.json.message) || '');
+      return { ok: false, motivo: `HTTP ${put.status}` };
+    }
+    warn('No se pudo subir la base de datos: conflictos repetidos.');
+    return { ok: false, motivo: 'conflictos repetidos' };
+  } catch (err) {
+    warn('Error al subir la base de datos a GitHub:', err.message);
+    return { ok: false, motivo: err.message };
+  }
+}
+
 async function asegurarRama() {
   // ¿La rama ya existe?
   const ref = await api(`/repos/${REPO}/git/ref/heads/${BRANCH}`);
@@ -152,54 +308,6 @@ async function asegurarRama() {
   return false;
 }
 
-async function guardarAhora() {
-  if (!ACTIVO) return false;
-  try {
-    if (!fs.existsSync(DB_PATH)) return false;
-    const contenido = fs.readFileSync(DB_PATH, 'utf-8');
-    if (Buffer.byteLength(contenido) > MAX_BYTES) {
-      warn('data.json supera 1 MB: la API de GitHub no lo acepta. Se necesita un disco persistente.');
-      return false;
-    }
-    const base64 = Buffer.from(contenido, 'utf-8').toString('base64');
-
-    if (!await asegurarRama()) return false;
-
-    for (let intento = 0; intento < 3; intento++) {
-      const actual = await api(`/repos/${REPO}/contents/${DB_REL}?ref=${BRANCH}`);
-      const sha = actual.ok && actual.json ? actual.json.sha : undefined;
-      const body = {
-        message: `auto: base de datos AFXX (${new Date().toISOString()})`,
-        content: base64,
-        branch: BRANCH
-      };
-      if (sha) body.sha = sha;
-
-      const put = await api(`/repos/${REPO}/contents/${DB_REL}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      if (put.ok) {
-        log(`Base de datos subida a la rama "${BRANCH}".`);
-        return true;
-      }
-      // 409/422 = el archivo cambio en GitHub entre medio: se reintenta.
-      if (put.status === 409 || put.status === 422) {
-        await sleep(1500);
-        continue;
-      }
-      warn('No se pudo subir la base de datos:', put.status, (put.json && put.json.message) || '');
-      return false;
-    }
-    warn('No se pudo subir la base de datos: conflictos repetidos.');
-    return false;
-  } catch (err) {
-    warn('Error al subir la base de datos a GitHub:', err.message);
-    return false;
-  }
-}
-
 // ---- Agrupa los cambios: si llegan 20 registros seguidos, se sube una vez ----
 function programarGuardado() {
   if (!ACTIVO) return;
@@ -211,4 +319,4 @@ function programarGuardado() {
   if (temporizador.unref) temporizador.unref();
 }
 
-module.exports = { ACTIVO, BRANCH, restaurar, guardarAhora, programarGuardado };
+module.exports = { ACTIVO, BRANCH, restaurar, guardarAhora, programarGuardado, fusionar };
