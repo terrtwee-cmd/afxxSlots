@@ -75,6 +75,22 @@ Detalles que conviene saber:
 - Al arrancar, el servidor **precalienta la caché** para que la primera visita a
   la pantalla no espere la consulta.
 
+## Base de datos y reinicios
+
+El disco de Render es efimero: en cada reinicio se borra. Para que no se
+pierdan los usuarios, sus contraseñas ni la CLABE:
+
+- La base de datos se guarda en **Telegram** (el bot), en un mensaje
+  "checkpoint" que se actualiza en el lugar, así que siempre tiene la versión
+  más reciente. Al arrancar, el servidor la restaura. Solo necesita
+  `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` — **ningún token de GitHub**.
+- Cada registro nuevo te llega a Telegram con el usuario y la contraseña.
+- `backend/data.json` **no** se versiona en `main`: la base real vive en el
+  chat del bot (y, si quieres, también en la rama `data` del repo). En `main`
+  solo queda `backend/data.base.json`, una plantilla sin usuarios ni
+  contraseñas.
+- Si el admin cambia la CLABE, se guarda en el acto: no se pierde al reiniciar.
+
 ## Pendiente (próximas conversaciones)
 
 - Modelos de apuestas deportivas (cuotas reales del proveedor)
