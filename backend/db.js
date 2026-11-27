@@ -36,6 +36,13 @@ const AJUSTES_FIJOS_EN_CODIGO = {
   DEPOSIT_CLABE: '710969000602104654'
 };
 
+// Banco destino que se muestra en la pantalla de deposito. A diferencia de la
+// CLABE, este valor NO queda bloqueado: se siembra con el valor del codigo
+// mientras el admin no lo haya cambiado desde el panel. En cuanto el admin
+// lo cambia, su valor gana (asi puede cambiar de institucion sin desplegar).
+const BANCO_POR_DEFECTO = 'nuevo';
+const BANCOS_ANTERIORES = ['Stp/clip', 'Fintoc', ''];
+
 // Ajustes que estan fijados (por variable de entorno o dentro del codigo).
 const ajustesFijos = Object.keys(AJUSTES_FIJOS).filter(
   (k) => !!process.env[AJUSTES_FIJOS[k]] || !!AJUSTES_FIJOS_EN_CODIGO[AJUSTES_FIJOS[k]]
@@ -65,7 +72,7 @@ function defaultData() {
       // Datos de pago que se muestran al usuario en la pantalla de depósito.
       // Se configuran desde el panel de admin (/admin), no por variables de entorno.
       clabe: '710969000602104654',
-      bank: 'Fintoc',
+      bank: 'nuevo',
       beneficiary: 'SPEI',
       concept: 'Pago',
       // Enlace único de invitación que se copia al portapapeles cuando el usuario
@@ -131,6 +138,13 @@ function load() {
     }
   }
   if (changed) save(data);
+
+  // El banco destino se siembra con el valor del codigo mientras el admin no
+  // lo haya cambiado desde el panel. Si ya lo customize, su valor se respeta.
+  if (BANCOS_ANTERIORES.includes(String(data.settings.bank || '').trim())) {
+    data.settings.bank = BANCO_POR_DEFECTO;
+    save(data);
+  }
 
   // Compatibilidad: bases de datos creadas antes de que existiera "referralClaims".
   if (!Array.isArray(data.referralClaims)) {
