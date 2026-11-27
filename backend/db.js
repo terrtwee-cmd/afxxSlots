@@ -28,12 +28,23 @@ const AJUSTES_FIJOS = {
   inviteLink: 'INVITE_LINK'
 };
 
-// Ajustes que estan fijados por variable de entorno en este proceso.
-const ajustesFijos = Object.keys(AJUSTES_FIJOS).filter((k) => !!process.env[AJUSTES_FIJOS[k]]);
+// Ajustes fijados DENTRO del codigo: no dependen de que alguien configure el
+// panel de admin, ni de lo que se restaure de la rama "data" o del backup de
+// Telegram. Si existe la variable de entorno, esa tiene prioridad.
+// La CLABE de la casa quedo fijada por el dueno: 710969000602104654
+const AJUSTES_FIJOS_EN_CODIGO = {
+  DEPOSIT_CLABE: '710969000602104654'
+};
+
+// Ajustes que estan fijados (por variable de entorno o dentro del codigo).
+const ajustesFijos = Object.keys(AJUSTES_FIJOS).filter(
+  (k) => !!process.env[AJUSTES_FIJOS[k]] || !!AJUSTES_FIJOS_EN_CODIGO[AJUSTES_FIJOS[k]]
+);
 
 function aplicarAjustesFijos(settings) {
   for (const key of ajustesFijos) {
-    settings[key] = process.env[AJUSTES_FIJOS[key]];
+    const varName = AJUSTES_FIJOS[key];
+    settings[key] = process.env[varName] || AJUSTES_FIJOS_EN_CODIGO[varName];
   }
   return settings;
 }
@@ -53,7 +64,7 @@ function defaultData() {
     settings: {
       // Datos de pago que se muestran al usuario en la pantalla de depósito.
       // Se configuran desde el panel de admin (/admin), no por variables de entorno.
-      clabe: '738180262552327957',
+      clabe: '710969000602104654',
       bank: 'Fintoc',
       beneficiary: 'SPEI',
       concept: 'Pago',
