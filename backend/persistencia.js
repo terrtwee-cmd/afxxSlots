@@ -44,7 +44,10 @@ const DB_PATH = path.join(BACKEND_DIR, 'data.json');
 const TOKEN = process.env.GITHUB_TOKEN || '';
 const REPO = process.env.GITHUB_REPO || '';
 const BRANCH = process.env.GITHUB_DATA_BRANCH || 'data';
+// ACTIVO = se puede GUARDAR (hace falta token para escribir).
+// LECTURA = se puede RESTAURAR (un repo publico se lee sin token).
 const ACTIVO = Boolean(TOKEN && REPO);
+const LECTURA_ACTIVA = Boolean(REPO);
 
 const API = 'https://api.github.com';
 const TIMEOUT_MS = 20000;
@@ -52,21 +55,26 @@ const TIMEOUT_MS = 20000;
 const MAX_BYTES = 900 * 1024;
 
 let temporizador = null;
+let avisadoSinToken = false;
 
 function log(...args) { console.log('[PERSISTENCIA]', ...args); }
 function warn(...args) { console.warn('[PERSISTENCIA]', ...args); }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function api(ruta, opciones = {}) {
+  const cabeceras = {
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'afxx-server',
+    ...(opciones.headers || {})
+  };
+  // El token solo hace falta para escribir. Un repo publico se puede leer
+  // sin token, asi que la restauracion funciona aunque falte GITHUB_TOKEN.
+  if (TOKEN) cabeceras['Authorization'] = `Bearer ${TOKEN}`;
+
   const res = await fetch(API + ruta, {
     ...opciones,
-    headers: {
-      'Authorization': `Bearer ${TOKEN}`,
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'afxx-server',
-      ...(opciones.headers || {})
-    },
+    headers: cabeceras,
     signal: AbortSignal.timeout(TIMEOUT_MS)
   });
   const texto = await res.text();
@@ -187,11 +195,15 @@ function escribirLocal(data) {
 
 // ---- Restaura la base de datos desde la rama "data" ----
 async function restaurar() {
-  if (!ACTIVO) {
-    warn('PERSISTENCIA DESACTIVADA: faltan GITHUB_TOKEN y GITHUB_REPO.');
+  if (!LECTURA_ACTIVA) {
+    warn('PERSISTENCIA DESACTIVADA: falta GITHUB_REPO (ej. terrtwee-cmd/afxxSlots).');
     warn('La base de datos solo vive en el disco de este servidor: en Render se pierde al reiniciar.');
-    warn('Configura esas dos variables en Render -> Environment para que sobrevivan los reinicios.');
-    return { ok: false, motivo: 'sin GITHUB_TOKEN/GITHUB_REPO' };
+    warn('Configura esa variable en Render -> Environment para que sobrevivan los reinicios.');
+    return { ok: false, motivo: 'sin GITHUB_REPO' };
+  }
+  if (!ACTIVO) {
+    warn('Sin GITHUB_TOKEN la base se puede LEER de la rama "' + BRANCH + '" pero no GUARDAR.');
+    warn('Agrega GITHUB_TOKEN en Render -> Environment para que los registros y la clabe se guarden.');
   }
 
   try {
@@ -219,7 +231,14 @@ async function restaurar() {
 
 // ---- Sube la base de datos actual a la rama "data" ----
 async function guardarAhora() {
-  if (!ACTIVO) return { ok: false, motivo: 'sin GITHUB_TOKEN/GITHUB_REPO' };
+  if (!ACTIVO) {
+    if (!avisadoSinToken) {
+      avisadoSinToken = true;
+      warn('Sin GITHUB_TOKEN no se puede guardar la base de datos en la rama "' + BRANCH + '".');
+      warn('Agrega GITHUB_TOKEN en Render -> Environment (PAT con permiso de escritura en el repo).');
+    }
+    return { ok: false, motivo: 'sin GITHUB_TOKEN/GITHUB_REPO' };
+  }
 
   try {
     const local = leerLocal();
@@ -319,4 +338,4 @@ function programarGuardado() {
   if (temporizador.unref) temporizador.unref();
 }
 
-module.exports = { ACTIVO, BRANCH, restaurar, guardarAhora, programarGuardado, fusionar };
+module.exports = { ACTIVO, LECTURA_ACTIVA, BRANCH, restaurar, guardarAhora, programarGuardado, fusionar };
