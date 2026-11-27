@@ -42,6 +42,18 @@ app.get('/', (req, res) => {
   );
 });
 
+// ---- Cualquier ruta desconocida lleva a la página principal ----
+// El enlace de invitación que se comparte puede verse personalizado (por
+// ejemplo https://afxxslots.onrender.com/AFXX). Si esa ruta no es un
+// archivo real del sitio, se redirige a la página principal en vez de
+// mostrar un 404, así el enlace nunca se rompe. Las rutas /api/* no se
+// tocan: ahí se sigue respondiendo JSON.
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) return next();
+  const query = req.originalUrl.includes('?') ? '?' + req.originalUrl.split('?')[1] : '';
+  res.redirect(302, '/' + query);
+});
+
 const PORT = process.env.PORT || 4000;
 
 // ---- Arranque ----

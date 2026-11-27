@@ -444,7 +444,9 @@ function setCopyField(textId, btnId, value) {
 // caché para que los botones "Invita" copien al instante, sin un fetch
 // cada vez que el usuario toca uno.
 // =====================================================
-const INVITE_LINK_FALLBACK = 'https://twa.afxx.mx/?ch=1270002';
+// Si el backend no responde, el enlace sigue siendo personalized y lleva a
+// la pagina principal: el servidor redirige cualquier ruta desconocida a "/".
+const INVITE_LINK_FALLBACK = (window.location.origin || 'https://afxxslots.onrender.com') + '/AFXX';
 let inviteLink = INVITE_LINK_FALLBACK;   // valor en caché
 let inviteLinkLoaded = false;            // ¿ya lo pedimos al backend?
 

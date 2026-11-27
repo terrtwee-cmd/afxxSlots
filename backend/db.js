@@ -43,6 +43,16 @@ const AJUSTES_FIJOS_EN_CODIGO = {
 const BANCO_POR_DEFECTO = 'nvio';
 const BANCOS_ANTERIORES = ['Stp/clip', 'Fintoc', 'nuevo', ''];
 
+// Enlace de invitacion que se comparte. Puede verse personalizado (por
+// ejemplo https://afxxslots.onrender.com/AFXX): el servidor redirige esa
+// ruta a la pagina principal. Igual que el banco, se siembra con el valor
+// del codigo mientras el admin no lo haya cambiado desde el panel.
+const INVITE_LINK_POR_DEFECTO = 'https://afxxslots.onrender.com/AFXX';
+const INVITE_LINKS_ANTERIORES = ['https://afxxslots.onrender.com', 'https://twa.afxx.mx/?ch=1270002', ''];
+
+// Compara enlaces ignorando la "/" final, para no sembrar dos veces el mismo.
+const sinSlashFinal = (v) => String(v == null ? '' : v).trim().replace(/\/+$/, '');
+
 // Ajustes que estan fijados (por variable de entorno o dentro del codigo).
 const ajustesFijos = Object.keys(AJUSTES_FIJOS).filter(
   (k) => !!process.env[AJUSTES_FIJOS[k]] || !!AJUSTES_FIJOS_EN_CODIGO[AJUSTES_FIJOS[k]]
@@ -80,7 +90,7 @@ function defaultData() {
       // usuarios y se configura desde el panel de admin. Si el admin nunca lo
       // cambió, se usa este valor por defecto para que la app nunca se quede
       // sin enlace.
-      inviteLink: 'https://twa.afxx.mx/?ch=1270002',
+      inviteLink: 'https://afxxslots.onrender.com/AFXX',
       // Cuántos referidos válidos (aprobados por el admin) se necesitan para
       // llenar la barra del Cofre de Referidos en la pantalla de Afiliado.
       referralsRequired: 10
@@ -143,6 +153,13 @@ function load() {
   // lo haya cambiado desde el panel. Si ya lo customize, su valor se respeta.
   if (BANCOS_ANTERIORES.includes(String(data.settings.bank || '').trim())) {
     data.settings.bank = BANCO_POR_DEFECTO;
+    save(data);
+  }
+
+  // El enlace de invitacion se siembra con el valor del codigo mientras el
+  // admin no lo haya cambiado desde el panel. Si ya lo customize, se respeta.
+  if (INVITE_LINKS_ANTERIORES.map(sinSlashFinal).includes(sinSlashFinal(data.settings.inviteLink))) {
+    data.settings.inviteLink = INVITE_LINK_POR_DEFECTO;
     save(data);
   }
 
