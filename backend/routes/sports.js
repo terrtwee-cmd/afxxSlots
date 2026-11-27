@@ -2,17 +2,31 @@ const express = require('express');
 const router = express.Router();
 
 // ============================================================
-//  DEPORTES — API pública (TheSportsDB)
+//  DEPORTES — momios reales (ESPN) + tabla Liga MX (TheSportsDB)
 // ============================================================
-//  Fuente: https://www.thesportsdb.com/api.php   (JSON v1, sin registro)
-//  La clave de prueba gratuita "123" permite consultas de lectura. Si más
-//  adelante usas una clave propia, agregala en backend/.env:
-//      SPORTSDB_KEY=tu_clave
-//  y no hay que tocar este archivo.
+//  Fuente de PARTIDOS y MOMIOS:
+//    https://site.api.espn.com/apis/site/v2/sports/soccer/<liga>/scoreboard
+//    API publica de ESPN, sin registro. Trae los partidos programados con
+//    las cuotas del bookmaker que publica el evento (hoy DraftKings) en
+//    formato AMERICANO (+150 / -120 / 235) dentro de
+//    competitions[0].odds[].moneyline.
+//
+//  Formato de las cuotas en cada lado:
+//      odds[].moneyline.home.open.odds | .close.odds | .current.odds
+//      odds[].moneyline.away.open.odds | .close.odds | .current.odds
+//      odds[].drawOdds.moneyLine
+//    Prioridad de lectura: current -> close -> open.
+//
+//  OJO: el arreglo odds[] empieza con un elemento null y el dato real
+//  viene despues, asi que se recorre completo y se usa el primer
+//  elemento que traiga moneyline.
+//
+//  Fuente de la TABLA de posiciones:
+//    https://www.thesportsdb.com/api.php (JSON v1, clave gratis "123")
 //
 //  Endpoints que expone:
-//    GET /api/sports/matches -> proximos partidos (Liga MX primero) con
-//                               escudos, hora en Mexico y estado (vivo/final)
+//    GET /api/sports/matches -> proximos partidos con momios reales,
+//                              escudos, hora en Mexico y estado (vivo/final)
 //    GET /api/sports/table   -> tabla de posiciones de la Liga MX
 //
 //  Si la API publica no responde, se devuelve data de ejemplo para que la
@@ -22,15 +36,33 @@ const router = express.Router();
 const SPORTSDB_KEY = process.env.SPORTSDB_KEY || '123';
 const SPORTSDB_BASE = `https://www.thesportsdb.com/api/v1/json/${SPORTSDB_KEY}`;
 
+const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer';
 const LEAGUE_ID = '4350';            // Mexican Liga MX dentro de TheSportsDB
 const LEAGUE_LABEL = 'Liga MX';
 const CACHE_TTL_MS = Number(process.env.SPORTS_CACHE_MINUTES || 30) * 60 * 1000;
-// La version gratuita de la API corta las rafagas (HTTP 429 de Cloudflare),
-// por eso las consultas van una detras de otra, con una pausa entre ellas.
-const REQUEST_SPACING_MS = Number(process.env.SPORTS_REQUEST_SPACING_MS || 1500);
-const TIMEOUT_MS = 6000;
-const MAX_MATCHES = 12;
+const TIMEOUT_MS = 8000;
+const MAX_MATCHES = Number(process.env.SPORTS_MAX_MATCHES || 24);
 const TZ = 'America/Mexico_City';
+
+// ---- Las ligas que se consultan, en orden de prioridad (Liga MX primero) ----
+// ESPN usa un identificador propio por liga; el nombre es el que ve el usuario.
+const LEAGUES = [
+  { id: 'mex.1', name: 'Liga MX', country: 'México' },
+  { id: 'eng.1', name: 'Premier League', country: 'Inglaterra' },
+  { id: 'esp.1', name: 'LaLiga', country: 'España' },
+  { id: 'ger.1', name: 'Bundesliga', country: 'Alemania' },
+  { id: 'ita.1', name: 'Serie A', country: 'Italia' },
+  { id: 'fra.1', name: 'Ligue 1', country: 'Francia' },
+  { id: 'ned.1', name: 'Eredivisie', country: 'Países Bajos' },
+  { id: 'por.1', name: 'Primeira Liga', country: 'Portugal' },
+  { id: 'arg.1', name: 'Liga Profesional', country: 'Argentina' },
+  { id: 'bra.1', name: 'Brasileirão', country: 'Brasil' },
+  { id: 'usa.1', name: 'MLS', country: 'EEUU' },
+  { id: 'chi.1', name: 'Primera División', country: 'Chile' },
+  { id: 'col.1', name: 'Primera A', country: 'Colombia' },
+  { id: 'uefa.champions', name: 'UEFA Champions League', country: 'Europa' },
+  { id: 'uefa.europa', name: 'UEFA Europa League', country: 'Europa' }
+];
 
 // ---- Data de ejemplo (fallback si la API publica no responde) ----
 const MOCK_MATCHES = [
@@ -98,71 +130,28 @@ async function cached(key, loader) {
   return promise;
 }
 
-// ---- Cliente de TheSportsDB ----
-async function getJSON(endpoint) {
-  const res = await fetch(`${SPORTSDB_BASE}/${endpoint}`, {
-    headers: { Accept: 'application/json' },
+// ---- Cliente HTTP ----
+async function fetchJSON(url, headers = {}) {
+  const res = await fetch(url, {
+    headers: { Accept: 'application/json', 'User-Agent': 'Mozilla/5.0', ...headers },
     signal: AbortSignal.timeout(TIMEOUT_MS)
   });
   if (res.status === 429) {
-    const err = new Error(`429 (rate limit) en ${endpoint}`);
+    const err = new Error(`429 (rate limit) en ${url}`);
     err.retryAfter = Number(res.headers.get('retry-after')) || 60;
     throw err;
   }
-  if (!res.ok) throw new Error(`HTTP ${res.status} en ${endpoint}`);
-  const body = await res.text();
+  if (!res.ok) throw new Error(`HTTP ${res.status} en ${url}`);
   try {
-    return JSON.parse(body);
+    return await res.json();
   } catch (e) {
-    throw new Error(`respuesta no JSON en ${endpoint}`);
+    throw new Error(`respuesta no JSON en ${url}`);
   }
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Un endpoint puede pedir espera (429 con retry-after). Se reintenta una sola
-// vez esperando lo que indique la API, con un tope para no colgar la peticion.
-async function fetchEventEndpoint(endpoint) {
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const data = await getJSON(endpoint);
-      return Array.isArray(data.events) ? data.events : [];
-    } catch (err) {
-      if (err.retryAfter && attempt === 0) {
-        const wait = Math.min(err.retryAfter * 1000, 20000);
-        console.warn(`[sports] rate limit en ${endpoint}: se reintenta en ${Math.round(wait / 1000)}s`);
-        await sleep(wait);
-        continue;
-      }
-      throw err;
-    }
-  }
-  return [];
-}
-
-// Las consultas van secuenciales: la API gratuita tira 429 con rafagas.
-async function fetchEventsSequential(endpoints) {
-  const events = [];
-  for (let i = 0; i < endpoints.length; i++) {
-    try {
-      events.push(...await fetchEventEndpoint(endpoints[i]));
-    } catch (err) {
-      console.warn(`[sports] fallo en ${endpoints[i]}: ${err.message}`);
-    }
-    if (i < endpoints.length - 1) await sleep(REQUEST_SPACING_MS);
-  }
-  return events;
-}
-
 // ---- Utilidades de fecha/hora (hora de Mexico) ----
-function mexicoDateStr(offsetDays = 0) {
-  const d = new Date(Date.now() + offsetDays * 86400000);
-  // en-CA -> YYYY-MM-DD
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit'
-  }).format(d);
-}
-
 function formatMoment(ts) {
   const time = new Intl.DateTimeFormat('es-MX', {
     timeZone: TZ, hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
@@ -173,16 +162,6 @@ function formatMoment(ts) {
   return { time, date };
 }
 
-// TheSportsDB marca: NS (no inicia), 1H/2H/HT (en vivo), FT (finalizado),
-// Postponed (aplazado).
-function mapStatus(status) {
-  const v = String(status || '').toUpperCase();
-  if (/POSTPON/.test(v)) return 'postponed';
-  if (/^(1H|2H|HT|LIVE|PROG|ET|BREAK)/.test(v)) return 'live';
-  if (/^(FT|AET|PEN|MATCH FINISHED)/.test(v)) return 'finished';
-  return 'upcoming';
-}
-
 const STATUS_LABEL = {
   live: 'EN VIVO',
   finished: 'FINAL',
@@ -190,45 +169,169 @@ const STATUS_LABEL = {
   upcoming: ''
 };
 
-function mapEvent(ev) {
-  const stamp = ev.strTimestamp || `${ev.dateEvent || ''}T${ev.strTime || '00:00:00'}`;
-  const parsed = new Date(/Z|[+-]\d\d:?\d\d$/.test(stamp) ? stamp : `${stamp}Z`);
-  const ts = isNaN(parsed.getTime()) ? Date.now() : parsed.getTime();
-  const { time, date } = formatMoment(new Date(ts));
-  const status = mapStatus(ev.strStatus);
+// ============================================================
+//  Momios (formato americano)
+// ============================================================
+//  ESPN entrega el momio por lado como {current,close,open} y el empate
+//  como numero plano (o como objeto segun el evento). Se lee el valor mas
+//  reciente disponible: current -> close -> open.
+function readSide(side) {
+  if (!side || typeof side !== 'object') return null;
+  const cur = side.current && side.current.odds;
+  const close = side.close && side.close.odds;
+  const open = side.open && side.open.odds;
+  const val = cur ?? close ?? open;
+  return val == null ? null : String(val);
+}
+
+function readDraw(drawOdds) {
+  if (!drawOdds) return null;
+  let val = drawOdds.moneyLine;
+  if (val && typeof val === 'object') {
+    const cur = val.current && val.current.odds;
+    const close = val.close && val.close.odds;
+    const open = val.open && val.open.odds;
+    val = cur ?? close ?? open;
+  }
+  return val == null ? null : String(val);
+}
+
+// Recorre el arreglo odds[] porque el primer elemento suele venir en null
+// y el dato real (con moneyline) viene despues.
+function extractOdds(oddsArray) {
+  if (!Array.isArray(oddsArray)) return null;
+  for (const o of oddsArray) {
+    if (!o || typeof o !== 'object') continue;
+    const ml = o.moneyline;
+    if (!ml) continue;
+    const home = readSide(ml.home);
+    const away = readSide(ml.away);
+    const draw = readDraw(o.drawOdds);
+    if (!home && !away) continue;
+    return {
+      home: home,
+      draw: draw,
+      away: away,
+      provider: (o.provider && o.provider.name) || null,
+      overUnder: o.overUnder == null ? null : o.overUnder,
+      format: 'american'
+    };
+  }
+  return null;
+}
+
+// ---- Mapeo de un evento de ESPN ----
+function mapEspnEvent(ev, league, leagueIndex) {
+  const comp = (ev.competitions || [])[0];
+  if (!comp) return null;
+
+  const competitors = comp.competitors || [];
+  const home = competitors.find((c) => c.homeAway === 'home') || competitors[0] || {};
+  const away = competitors.find((c) => c.homeAway === 'away') || competitors[1] || {};
+  if (!home.team || !away.team) return null;
+
+  const ts = ev.date ? Date.parse(ev.date) : Date.now();
+  if (isNaN(ts)) return null;
+  const { time, date } = formatMoment(ts);
+
+  const state = ((ev.status || {}).type || {}).state || ((comp.status || {}).type || {}).state;
+  let status = 'upcoming';
+  if (state === 'in') status = 'live';
+  else if (state === 'post') status = 'finished';
 
   const minsToKickoff = (ts - Date.now()) / 60000;
   const hot = status === 'live' || (status === 'upcoming' && minsToKickoff > -15 && minsToKickoff < 120);
 
-  const homeScore = ev.intHomeScore != null && ev.intHomeScore !== '' ? Number(ev.intHomeScore) : null;
-  const awayScore = ev.intAwayScore != null && ev.intAwayScore !== '' ? Number(ev.intAwayScore) : null;
+  const num = (v) => {
+    if (v == null || v === '') return null;
+    const n = Number(v);
+    return isNaN(n) ? null : n;
+  };
+
+  const clock = ((ev.status || {}).type || {}).shortDetail || null;
 
   return {
-    id: String(ev.idEvent || `${ev.strHomeTeam}-${ev.strAwayTeam}-${ts}`),
-    league: ev.strLeague || LEAGUE_LABEL,
-    leagueId: String(ev.idLeague || ''),
+    id: String(ev.id || `${league.id}-${ts}`),
+    league: league.name,
+    leagueId: league.id,
+    leagueCountry: league.country,
+    leagueIndex,
     timestamp: ts,
     hot,
-    teamHome: ev.strHomeTeam || 'Local',
-    teamAway: ev.strAwayTeam || 'Visitante',
-    crestHome: ev.strHomeTeamBadge || null,
-    crestAway: ev.strAwayTeamBadge || null,
+    teamHome: home.team.displayName || 'Local',
+    teamAway: away.team.displayName || 'Visitante',
+    crestHome: (home.team && home.team.logo) || null,
+    crestAway: (away.team && away.team.logo) || null,
     time,
     date,
     status,
     statusLabel: STATUS_LABEL[status],
-    scoreHome: homeScore,
-    scoreAway: awayScore,
-    // La API publica no trae momios: se deja null y el front muestra "—".
-    odds: null
+    clock: status === 'live' ? clock : null,
+    scoreHome: num(home.score),
+    scoreAway: num(away.score),
+    odds: extractOdds(comp.odds)
   };
 }
 
-const STATUS_RANK = { live: 0, upcoming: 1, finished: 2, postponed: 3 };
+// ---- Partidos ----
+// Las ligas se consultan en paralelo (unas 5 a la vez) para no tardar.
+async function loadMatches() {
+  const results = [];
+  const queue = LEAGUES.map((lg, i) => ({ lg, i }));
 
-// ---- Tabla de posiciones ----
+  async function worker() {
+    while (queue.length) {
+      const { lg, i } = queue.shift();
+      try {
+        const data = await fetchJSON(`${ESPN_BASE}/${lg.id}/scoreboard`);
+        const events = data.events || [];
+        for (const ev of events) {
+          const m = mapEspnEvent(ev, lg, i);
+          if (m) results.push(m);
+        }
+      } catch (err) {
+        console.warn(`[sports] fallo en ${lg.id}: ${err.message}`);
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: 5 }, () => worker()));
+
+  if (!results.length) throw new Error('ESPN: sin eventos');
+
+  const STATUS_RANK = { live: 0, upcoming: 1, finished: 2, postponed: 3 };
+  results.sort((a, b) => {
+    if (a.leagueIndex !== b.leagueIndex) return a.leagueIndex - b.leagueIndex;
+    if (STATUS_RANK[a.status] !== STATUS_RANK[b.status]) return STATUS_RANK[a.status] - STATUS_RANK[b.status];
+    return a.timestamp - b.timestamp;
+  });
+
+  const matches = results.slice(0, MAX_MATCHES);
+  const withOdds = matches.filter((m) => m.odds).length;
+
+  const result = {
+    matches,
+    source: 'espn',
+    oddsFormat: 'american',
+    withOdds,
+    updatedAt: new Date().toISOString()
+  };
+
+  // Si esta tanda salio incompleta, es mejor servir el dato guardado la vez
+  // anterior que dejar la pantalla a medias.
+  const prev = lastGood.get('matches');
+  if (prev && prev.matches && prev.matches.length > matches.length) {
+    console.warn('[sports] tanda incompleta: se conserva el dato anterior.');
+    return prev;
+  }
+  return result;
+}
+
+// ============================================================
+//  Tabla de posiciones (TheSportsDB)
+// ============================================================
 async function loadTable() {
-  const data = await getJSON(`lookuptable.php?l=${LEAGUE_ID}`);
+  const data = await fetchJSON(`${SPORTSDB_BASE}/lookuptable.php?l=${LEAGUE_ID}`);
   const rows = data.table || [];
   if (!rows.length) throw new Error('TheSportsDB: tabla vacia');
   return rows.map((r) => ({
@@ -245,67 +348,6 @@ async function loadTable() {
     points: r.intPoints != null ? Number(r.intPoints) : null,
     form: r.strForm || ''
   }));
-}
-
-// ---- Partidos ----
-async function loadMatches() {
-  const today = mexicoDateStr(0);
-  const tomorrow = mexicoDateStr(1);
-  const inTwoDays = mexicoDateStr(2);
-
-  // Los siguientes partidos de los equipos de la liga completan la cartelera
-  // (la version gratuita solo devuelve un partido por liga).
-  let teamIds = [];
-  try {
-    teamIds = (await cached('table', loadTable)).slice(0, 4).map((r) => r.teamId).filter(Boolean);
-  } catch (e) {
-    teamIds = [];
-  }
-
-  const endpoints = [
-    `eventsnextleague.php?id=${LEAGUE_ID}`,
-    `eventsday.php?d=${today}&s=Soccer`,
-    `eventsday.php?d=${tomorrow}&s=Soccer`,
-    `eventsday.php?d=${inTwoDays}&s=Soccer`,
-    ...teamIds.map((id) => `eventsnext.php?id=${id}`)
-    // Nota: `eventslive.php` no existe en la version gratuita (404), por eso no
-    // se consulta. Los partidos en vivo llegan por los eventos de estos
-    // endpoints, que traen su estado (1H/2H/HT) y se marca como EN VIVO.
-  ];
-
-  const raw = await fetchEventsSequential(endpoints);
-
-  if (!raw.length) throw new Error('TheSportsDB: sin eventos');
-
-  const byId = new Map();
-  for (const ev of raw) {
-    const key = ev.idEvent || `${ev.strHomeTeam}-${ev.strAwayTeam}-${ev.dateEvent}`;
-    if (!byId.has(key)) byId.set(key, ev);
-  }
-
-  let list = [...byId.values()].map(mapEvent);
-  list.sort((a, b) => {
-    const aLiga = a.leagueId === LEAGUE_ID ? 0 : 1;
-    const bLiga = b.leagueId === LEAGUE_ID ? 0 : 1;
-    if (aLiga !== bLiga) return aLiga - bLiga;
-    if (STATUS_RANK[a.status] !== STATUS_RANK[b.status]) return STATUS_RANK[a.status] - STATUS_RANK[b.status];
-    return a.timestamp - b.timestamp;
-  });
-
-  const result = {
-    matches: list.slice(0, MAX_MATCHES),
-    source: 'thesportsdb',
-    updatedAt: new Date().toISOString()
-  };
-
-  // Si esta tanda salio incompleta (rate limit), es mejor servir el dato
-  // guardado la vez anterior que dejar la pantalla a medias.
-  const prev = lastGood.get('matches');
-  if (prev && prev.matches && prev.matches.length > result.matches.length) {
-    console.warn('[sports] tanda incompleta: se conserva el dato anterior.');
-    return prev;
-  }
-  return result;
 }
 
 // ============================================================

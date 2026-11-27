@@ -264,9 +264,11 @@ function crestImg(url, alt) {
 
 function matchCard(m) {
   const hasScore = m.scoreHome != null && m.scoreAway != null;
+  // En vivo, debajo del marcador va el minuto del partido; si no, la fecha.
+  const sub = (m.status === 'live' && m.clock) ? esc(m.clock) : esc(m.date);
   const center = hasScore
-    ? `<div class="match-time"><div class="time score">${m.scoreHome} - ${m.scoreAway}</div><div class="date">${esc(m.date)}</div></div>`
-    : `<div class="match-time"><div class="time">${esc(m.time)}</div><div class="date">${esc(m.date)}</div></div>`;
+    ? `<div class="match-time"><div class="time score">${m.scoreHome} - ${m.scoreAway}</div><div class="date">${sub}</div></div>`
+    : `<div class="match-time"><div class="time">${esc(m.time)}</div><div class="date">${sub}</div></div>`;
 
   const tags = [];
   if (m.status === 'live') tags.push('<span class="tag-live"><i></i>EN VIVO</span>');
@@ -275,12 +277,18 @@ function matchCard(m) {
   if (m.hot && m.status === 'upcoming') {
     tags.push('<span class="tag-hot"><img class="ico-inline ico-14" src="assets/icons/icon-hot-flame.png" alt=""/>Caliente</span>');
   }
+  // Bookmaker del que vienen los momios: deja claro que son cuotas reales.
+  if (m.odds && m.odds.provider) {
+    tags.push(`<span class="tag-odds">${esc(m.odds.provider)}</span>`);
+  }
 
-  // La API pública no entrega momios: se muestran como "—" en vez de inventar.
+  // Momios en formato americano (+150 / -120 / 235). Si el bookmaker no
+  // publico un lado, se deja el guion en vez de inventar un numero.
+  const od = (v) => (v == null || v === '' ? '—' : esc(v));
   const odds = m.odds
-    ? `<button class="odd-btn">1 <span class="odd-val">${esc(m.odds.home)}</span></button>
-       <button class="odd-btn">Empate <span class="odd-val">${esc(m.odds.draw)}</span></button>
-       <button class="odd-btn">2 <span class="odd-val">${esc(m.odds.away)}</span></button>`
+    ? `<button class="odd-btn">1 <span class="odd-val">${od(m.odds.home)}</span></button>
+       <button class="odd-btn">Empate <span class="odd-val">${od(m.odds.draw)}</span></button>
+       <button class="odd-btn">2 <span class="odd-val">${od(m.odds.away)}</span></button>`
     : `<button class="odd-btn odd-btn--pending" disabled>1 <span class="odd-val">—</span></button>
        <button class="odd-btn odd-btn--pending" disabled>Empate <span class="odd-val">—</span></button>
        <button class="odd-btn odd-btn--pending" disabled>2 <span class="odd-val">—</span></button>`;
@@ -303,6 +311,7 @@ function matchCard(m) {
         </div>
       </div>
       <div class="match-odds">${odds}</div>
+      ${m.odds && m.odds.overUnder != null ? `<div class="match-markets">Total ${esc(m.odds.overUnder)}</div>` : ''}
     </div>`;
 }
 
@@ -319,9 +328,12 @@ async function loadSports() {
     list.innerHTML = data.matches.map(matchCard).join('');
     const note = document.getElementById('sports-source');
     if (note) {
+      const conMomios = data.withOdds != null
+        ? data.withOdds
+        : data.matches.filter((m) => m.odds).length;
       note.textContent = data.source === 'demo'
         ? 'Datos de ejemplo'
-        : `Datos en vivo · ${data.matches.length} partidos`;
+        : `Datos en vivo · ${data.matches.length} partidos · ${conMomios} con momios`;
     }
   } catch (e) {
     list.innerHTML = '<p class="placeholder-block">No se pudo conectar al backend.</p>';

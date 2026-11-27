@@ -902,6 +902,10 @@ img { max-width: 100%; display: block; }
 .match-card { background: var(--bg-card-2); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; }
 .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; font-weight: 700; }
 .tag-hot { background: #111; color: #fff; font-size: 10px; padding: 3px 8px; border-radius: 999px; }
+/* Badge del bookmaker del que salen los momios (cuotas reales). */
+.tag-odds { background: rgba(0,180,90,.14); color: var(--text-primary); border: 1px solid rgba(0,180,90,.40); font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 999px; }
+/* Linea del mercado de totales que se publica debajo de los momios. */
+.match-markets { margin-top: 6px; text-align: right; font-size: 10px; font-weight: 700; color: var(--text-muted); }
 .match-teams { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .team { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; width: 33%; }
 .team-crest { width: 38px; height: 38px; border-radius: 50%; background: var(--bg-card); font-size: 18px; display: flex; align-items: center; justify-content: center; }
@@ -909,8 +913,8 @@ img { max-width: 100%; display: block; }
 .match-time .time { font-weight: 800; color: var(--red); }
 .match-time .date { font-size: 10px; color: var(--text-muted); }
 .match-odds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.odd-btn { background: #111; color: #fff; border: none; border-radius: var(--radius-sm); padding: 8px 4px; font-size: 12px; font-weight: 700; cursor: pointer; }
-.odd-val { color: var(--red-3); display: block; font-size: 11px; }
+.odd-btn { background: #111; color: var(--text-secondary); border: none; border-radius: var(--radius-sm); padding: 8px 4px; font-size: 10px; font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.odd-val { color: var(--red-3); display: block; font-size: 13px; font-weight: 800; }
 
 /* ---- Deportes: partidos (API publica) + tabla de posiciones ---- */
 .sports-note { font-size: 11px; font-weight: 700; color: var(--text-muted); }
