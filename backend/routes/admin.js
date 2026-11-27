@@ -1,5 +1,5 @@
 const express = require('express');
-const { load, save } = require('../db');
+const { load, save, ajustesFijos } = require('../db');
 const { requireAdmin } = require('../middleware');
 
 const router = express.Router();
@@ -13,7 +13,9 @@ const BONUS_MULTIPLIER = Number(process.env.BONUS_MULTIPLIER || 9);
 // reiniciar el servidor.
 router.get('/settings', requireAdmin, (req, res) => {
   const data = load();
-  res.json({ settings: data.settings });
+  // "locked" = ajustes fijados por variable de entorno (no se pueden cambiar
+  // desde el panel porque el valor del entorno siempre gana).
+  res.json({ settings: data.settings, locked: ajustesFijos });
 });
 
 router.post('/settings', requireAdmin, (req, res) => {

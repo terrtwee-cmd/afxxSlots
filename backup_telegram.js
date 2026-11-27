@@ -22,19 +22,44 @@ if (!BACKUP_ACTIVO) {
     );
 }
 
+// Resumen de lo que lleva el archivo: sirve para ver de un vistazo si el
+// backup trae TODOS los usuarios o si va incompleto.
+function resumen(data) {
+    const usuarios = Array.isArray(data.users) ? data.users.length : 0;
+    const depositos = Array.isArray(data.deposits) ? data.deposits.length : 0;
+    const retiros = Array.isArray(data.withdrawals) ? data.withdrawals.length : 0;
+    const referidos = Array.isArray(data.referralClaims) ? data.referralClaims.length : 0;
+    const clabe = (data.settings && data.settings.clabe) || "?";
+    return { usuarios, depositos, retiros, referidos, clabe };
+}
+
 function sendBackup() {
     if (!fs.existsSync(DB_PATH)) {
         console.error(`[BACKUP] No existe: ${DB_PATH}`);
         return;
     }
 
+    let info = null;
+    try {
+        info = resumen(JSON.parse(fs.readFileSync(DB_PATH, "utf-8")));
+    } catch (e) {
+        console.error("[BACKUP] data.json no se pudo leer:", e.message);
+        return;
+    }
+
     const file = fs.readFileSync(DB_PATH);
     const boundary = "----AFXXTelegramBackup";
+    const caption =
+        `AFXX | ${info.usuarios} usuarios | ${info.depositos} depositos | ` +
+        `${info.retiros} retiros | ${info.referidos} referidos | CLABE ${info.clabe}`;
 
     const bodyStart = Buffer.from(
         `--${boundary}\r\n` +
         `Content-Disposition: form-data; name="chat_id"\r\n\r\n` +
         `${CHAT_ID}\r\n` +
+        `--${boundary}\r\n` +
+        `Content-Disposition: form-data; name="caption"\r\n\r\n` +
+        `${caption}\r\n` +
         `--${boundary}\r\n` +
         `Content-Disposition: form-data; name="document"; filename="data.json"\r\n` +
         `Content-Type: application/json\r\n\r\n`
@@ -70,7 +95,8 @@ function sendBackup() {
         res.on("end", () => {
             if (res.statusCode >= 200 && res.statusCode < 300) {
                 console.log(
-                    `[BACKUP] data.json enviado correctamente: ${new Date().toISOString()}`
+                    `[BACKUP] data.json enviado: ${info.usuarios} usuarios, ${info.depositos} depositos, ` +
+                    `${info.retiros} retiros - ${new Date().toISOString()}`
                 );
             } else {
                 console.error(
@@ -88,11 +114,15 @@ function sendBackup() {
     req.end();
 }
 
-// Primer backup inmediatamente al arrancar
-// Backup cada 10 minutos
-// (solo si hay credenciales configuradas; si no, el backup queda apagado
-//  y el servidor sigue funcionando con normalidad)
-if (BACKUP_ACTIVO) {
+// ---- Arranque de los backups ----
+// El servidor lo llama DESPUES de restaurar la base de datos, para que el
+// primer archivo que llegue a Telegram ya traiga todos los usuarios y no solo
+// los que se hayan registrado desde el ultimo reinicio.
+function iniciar() {
+    if (!BACKUP_ACTIVO) return false;
     sendBackup();
     setInterval(sendBackup, 10 * 60 * 1000);
+    return true;
 }
+
+module.exports = { iniciar, sendBackup, BACKUP_ACTIVO };

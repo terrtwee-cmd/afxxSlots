@@ -122,6 +122,7 @@
   <section id="settings-section" hidden>
     <h2>Datos de depósito (Clabe)</h2>
     <p class="sub">Esto es exactamente lo que ve el usuario en la pantalla de depósito. Cámbialo cuando cambie tu cuenta receptora.</p>
+    <p class="sub" id="settings-locked-note" hidden style="color:#b45309; font-weight:700;">Estos datos están fijados por variable de entorno en el servidor, así que el panel no puede cambiarlos.</p>
     <div class="settings-card">
       <div class="settings-grid">
         <div>
@@ -209,6 +210,23 @@
       document.getElementById('set-concept').value = data.settings.concept || '';
       document.getElementById('set-invite-link').value = data.settings.inviteLink || '';
       document.getElementById('set-referrals-required').value = data.settings.referralsRequired || 10;
+
+      // Ajustes fijados por variable de entorno: se muestran, pero no se
+      // pueden editar desde aqui (el valor del servidor siempre gana).
+      const locked = data.locked || [];
+      const campos = {
+        clabe: 'set-clabe',
+        bank: 'set-bank',
+        beneficiary: 'set-beneficiary',
+        concept: 'set-concept',
+        inviteLink: 'set-invite-link'
+      };
+      for (const key of locked) {
+        const el = document.getElementById(campos[key]);
+        if (el) { el.disabled = true; el.title = 'Fijado por variable de entorno en el servidor'; }
+      }
+      const nota = document.getElementById('settings-locked-note');
+      if (nota) nota.hidden = locked.length === 0;
     }
 
     async function saveSettings() {

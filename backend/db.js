@@ -5,8 +5,32 @@
 
 const fs = require('fs');
 const path = require('path');
+const persistencia = require('./persistencia');
 
 const DB_PATH = path.join(__dirname, 'data.json');
+
+// ---- Ajustes que se pueden FIJAR por variable de entorno ----
+// Las variables de entorno (Render -> Environment) NO se borran en un
+// reinicio ni en un despliegue, a diferencia de data.json. Por eso la CLABE
+// se puede fijar aqui para que nunca cambie sola. Si existe la variable, el
+// valor del panel de admin se ignora (y el panel lo avisa).
+const AJUSTES_FIJOS = {
+  clabe: 'DEPOSIT_CLABE',
+  bank: 'DEPOSIT_BANK',
+  beneficiary: 'DEPOSIT_BENEFICIARY',
+  concept: 'DEPOSIT_CONCEPT',
+  inviteLink: 'INVITE_LINK'
+};
+
+// Ajustes que estan fijados por variable de entorno en este proceso.
+const ajustesFijos = Object.keys(AJUSTES_FIJOS).filter((k) => !!process.env[AJUSTES_FIJOS[k]]);
+
+function aplicarAjustesFijos(settings) {
+  for (const key of ajustesFijos) {
+    settings[key] = process.env[AJUSTES_FIJOS[key]];
+  }
+  return settings;
+}
 
 function defaultData() {
   return {
@@ -77,11 +101,18 @@ function load() {
     data.referralClaims = [];
     save(data);
   }
+  // Los valores fijados por variable de entorno mandan sobre el archivo.
+  aplicarAjustesFijos(data.settings);
   return data;
 }
 
 function save(data) {
+  // Marca de tiempo: sirve para saber que version de la base de datos es mas
+  // nueva cuando se restaura desde la rama "data" de GitHub.
+  data.savedAt = new Date().toISOString();
   fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
+  // Sube la version nueva a GitHub (si hay GITHUB_TOKEN/GITHUB_REPO).
+  persistencia.programarGuardado();
 }
 
-module.exports = { load, save };
+module.exports = { load, save, ajustesFijos };
